@@ -219,16 +219,15 @@ P(\Theta\lvert D, I) &amp;= \frac{P(D\lvert\Theta, I) \times P(\Theta\lvert I)}{
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>$D = \{D_k\}_{k=1}^N$
+<p>$D = \{D_k\}_{k=1}^N$</p>
 $$\begin{align*}
 P(\Theta\lvert D,I) &amp;\propto P(\{D_k\}_{k=1}^N\lvert \Theta, I)\times P(\Theta\lvert I) \\
 &amp;= P(\{D_k\}_{k=2}^N\lvert D_1, \Theta, I) \times P(D_1\lvert \Theta, I)\times P(\Theta\lvert I) \\
 &amp;= P(\{D_k\}_{k=2}^N\lvert \Theta, I)\times P(D_1\lvert \Theta, I)\times P(\Theta\lvert I) \\ 
 &amp;= P(\{D_k\}_{k=3}^N\lvert \Theta, I)\times P(D_2\lvert \Theta, I)\times P(D_1\lvert \Theta, I) \times P(\Theta\lvert I) \\
 &amp;\vdots \\
-&amp;= \big(\Pi_{k=1}^N P(D_k\lvert \Theta, I)\big) \times P(\Theta\lvert I)
-\end{align*}$$</p>
-
+&amp;= \left(\Pi_{k=1}^N P(D_k\lvert \Theta, I)\right) \times P(\Theta\lvert I)
+\end{align*}$$
 </div>
 </div>
 </div>
@@ -249,7 +248,8 @@ $$\begin{align*}
 L &amp;= \ln{P(\Theta\lvert D, I)} = \ln P \\
 &amp;= L\lvert_{\Theta_0} + \nabla L\lvert_{\Theta_0}\cdot(\Theta - \Theta_0) 
 + \frac{1}{2} (\Theta-\Theta_0)^{t}\cdot\nabla\nabla L\lvert_{\Theta_0}\cdot(\Theta-\Theta_0) + \mathcal{O}\big((\Theta-\Theta_0)^3\big) \\
-&amp;\simeq L\lvert_{\Theta_0} + \frac{1}{2} (\Theta-\Theta_0)^{t}\cdot\nabla\nabla L\lvert_{\Theta_0}\cdot(\Theta-\Theta_0)
+&amp;\simeq L\lvert_{\Theta_0} + \\
+&amp;\frac{1}{2} (\Theta-\Theta_0)^{t}\cdot\nabla\nabla L\lvert_{\Theta_0}\cdot(\Theta-\Theta_0)
 \end{align*}$$
 </div>
 </div>
