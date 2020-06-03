@@ -427,19 +427,18 @@ P(\text{All points good}\lvert \Theta, I) &amp;= \int\mathrm{d}u\, P(\text{All p
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We would obtain something similar for the second term
+<p>We would obtain something similar for the second term</p>
 \begin{align}
 \iint\mathrm{d}u\mathrm{d}\eta\, L^{(1)}(\Theta, u, \eta) H(u,\eta\lvert\Theta, I) &amp;=\iint\mathrm{d}u\mathrm{d}\eta\, u^{N-1}(1-u) B(y_j\lvert\Theta,\eta) L_j(\Theta) H(u,\eta\lvert\Theta, I)\\
 &amp;= L_j(\Theta)\underbrace{\int B(y_j\lvert\Theta, I) \underbrace{\mathrm{d}\eta\int\mathrm{d}u\, u^{N-1}(1-u) H(u,\eta\lvert\Theta, I)}_{\text{Probability that any given point ($y_j$) is bad,}\atop\text{all others are good, and $\eta$ lies in $(\eta, \eta+\mathrm{d}\eta)$, conditioned on $\Theta$ and $I$.}}}_{\text{Probability that $j$-th point is bad, with value $y_j$,}\atop\text{and all others are good, conditined on $\Theta$ and $I$.}}
-\end{align}</p>
-
+\end{align}
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Thus, we see that the pseudo-likelihood can be expressed as
+<p>Thus, we see that the pseudo-likelihood can be expressed as</p>
 \begin{align}
 \bar{L}(\Theta) &amp;= \iint\mathrm{d}u\mathrm{d}\eta L(\Theta, u, \eta) H(u, \eta\lvert \Theta, I) \\
 &amp;= \big(\textrm{Probability all data is good}\big)\times\big(\textrm{Likelihood for all data}\big) \\
@@ -448,8 +447,7 @@ P(\text{All points good}\lvert \Theta, I) &amp;= \int\mathrm{d}u\, P(\text{All p
 &amp;\;\vdots\\
 &amp;\, + \sum_j\big(\textrm{Probability only $x_j$ is good}\big)\times\big(\textrm{Likelihood with only $x_j$}\big)\\
 &amp;\, + \big(\textrm{Probability all data is bad}\big)
-\end{align}
-which is just a weighted-average of the "pure" likelihoods $L(\Theta)$, over all possible combinations of good/bad points, weighted over the corresponding prior probabilities. Note that the sums here are over non-repeating indices.</p>
+\end{align}<p>which is just a weighted-average of the "pure" likelihoods $L(\Theta)$, over all possible combinations of good/bad points, weighted over the corresponding prior probabilities. Note that the sums here are over non-repeating indices.</p>
 
 </div>
 </div>
