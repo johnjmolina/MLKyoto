@@ -442,10 +442,10 @@ P(\text{All points good}\lvert \Theta, I) &amp;= \int\mathrm{d}u\, P(\text{All p
 \begin{align}
 \bar{L}(\Theta) &amp;= \iint\mathrm{d}u\mathrm{d}\eta L(\Theta, u, \eta) H(u, \eta\lvert \Theta, I) \\
 &amp;= \big(\textrm{Probability all data is good}\big)\times\big(\textrm{Likelihood for all data}\big) \\
-&amp;\,+ \sum_j \big(\textrm{Probability only $x_j$ is bad}\big)\times\big(\textrm{Likelihood without $x_j$}\big)\\
-&amp;\,+ \sum_{j&lt;k}\big(\textrm{Probability only $x_j$ and $x_k$ are bad}\big)\times\big(\textrm{Likelihood without $x_j$ or $x_k$}\big)\\
+&amp;\,+ \sum_j \big(\textrm{Probability only } x_j \textrm{ is bad}\big)\times\big(\textrm{Likelihood without } x_j\big)\\
+&amp;\,+ \sum_{j&lt;k}\big(\textrm{Probability only } x_j\textrm{ and } x_k \textrm{ are bad}\big)\times\big(\textrm{Likelihood without } x_j \textrm{ or } x_k\big)\\
 &amp;\;\vdots\\
-&amp;\, + \sum_j\big(\textrm{Probability only $x_j$ is good}\big)\times\big(\textrm{Likelihood with only $x_j$}\big)\\
+&amp;\, + \sum_j\big(\textrm{Probability only } x_j \textrm{ is good}\big)\times\big(\textrm{Likelihood with only } x_j\big)\\
 &amp;\, + \big(\textrm{Probability all data is bad}\big)
 \end{align}<p>which is just a weighted-average of the "pure" likelihoods $L(\Theta)$, over all possible combinations of good/bad points, weighted over the corresponding prior probabilities. Note that the sums here are over non-repeating indices.</p>
 
@@ -480,8 +480,8 @@ L^{(m)}(\Theta, u, \eta)&amp;= \sum_{j_1 &lt; j_2 &lt;\cdots&lt; j_m}u^{M}(1-u)^
 <p>Up to now we haven't really cared about which point are good/bad. However, we could just as well introduce additional hyperparameters $q_i$ to keep track of this information. Let
 \begin{align}
 q_i =\begin{cases}
-1 &amp;\text{point $i$ is good} \\
-0 &amp;\text{point $i$ is bad}
+1 &amp;\textrm{point } i \textrm{ is good} \\
+0 &amp;\textrm{point } i \textrm{ is bad}
 \end{cases}
 \end{align}</p>
 <p>Such that $q_{j_1} = q_{j_2}= \cdots = q_{j_m}= 0$, $q_{i\ne j_1, j_2,\cdots j_m} = 1$, and $M= \sum_i q_i$. The likelihood term we are considering then becomes
