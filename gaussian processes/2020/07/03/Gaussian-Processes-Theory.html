@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Gaussian Processes 1 - Theory | Machine Learning Kyoto</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Gaussian Processes 1 - Theory" />
+<meta name="author" content="John J. Molina" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="We introduce the basic theory behind Gaussian Processes" />
+<meta property="og:description" content="We introduce the basic theory behind Gaussian Processes" />
+<link rel="canonical" href="https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/07/03/Gaussian-Processes-Theory.html" />
+<meta property="og:url" content="https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/07/03/Gaussian-Processes-Theory.html" />
+<meta property="og:site_name" content="Machine Learning Kyoto" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-07-03T00:00:00-05:00" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"John J. Molina"},"description":"We introduce the basic theory behind Gaussian Processes","@type":"BlogPosting","headline":"Gaussian Processes 1 - Theory","dateModified":"2020-07-03T00:00:00-05:00","datePublished":"2020-07-03T00:00:00-05:00","url":"https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/07/03/Gaussian-Processes-Theory.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/07/03/Gaussian-Processes-Theory.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/MLKyoto/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://johnjmolina.github.io/MLKyoto/feed.xml" title="Machine Learning Kyoto" /><link rel="shortcut icon" type="image/x-icon" href="/MLKyoto/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Gaussian Processes 1 - Theory | Machine Learning Kyoto</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Gaussian Processes 1 - Theory" />
+<meta name="author" content="John J. Molina" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="We introduce the basic theory behind Gaussian Processes" />
+<meta property="og:description" content="We introduce the basic theory behind Gaussian Processes" />
+<link rel="canonical" href="https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/07/03/Gaussian-Processes-Theory.html" />
+<meta property="og:url" content="https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/07/03/Gaussian-Processes-Theory.html" />
+<meta property="og:site_name" content="Machine Learning Kyoto" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-07-03T00:00:00-05:00" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"John J. Molina"},"description":"We introduce the basic theory behind Gaussian Processes","@type":"BlogPosting","headline":"Gaussian Processes 1 - Theory","dateModified":"2020-07-03T00:00:00-05:00","datePublished":"2020-07-03T00:00:00-05:00","url":"https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/07/03/Gaussian-Processes-Theory.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/07/03/Gaussian-Processes-Theory.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://johnjmolina.github.io/MLKyoto/feed.xml" title="Machine Learning Kyoto" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/MLKyoto/">Machine Learning Kyoto</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/MLKyoto/about/">About Me</a><a class="page-link" href="/MLKyoto/search/">Search</a><a class="page-link" href="/MLKyoto/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Gaussian Processes 1 - Theory</h1><p class="page-description">We introduce the basic theory behind Gaussian Processes</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-07-03T00:00:00-05:00" itemprop="datePublished">
+        Jul 3, 2020
+      </time>• 
+          <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span class="p-author h-card" itemprop="name">John J. Molina</span></span>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      13 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/MLKyoto/categories/#Gaussian Processes">Gaussian Processes</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/johnjmolina/MLKyoto/tree/master/_notebooks/2020-07-03-Gaussian-Processes-Theory.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/MLKyoto/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/johnjmolina/MLKyoto/master?filepath=_notebooks%2F2020-07-03-Gaussian-Processes-Theory.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/MLKyoto/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/johnjmolina/MLKyoto/blob/master/_notebooks/2020-07-03-Gaussian-Processes-Theory.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/MLKyoto/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#References">References </a></li>
+<li class="toc-entry toc-h1"><a href="#Preliminaries">Preliminaries </a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#Determinant">Determinant </a></li>
+<li class="toc-entry toc-h4"><a href="#Inverse">Inverse </a></li>
+<li class="toc-entry toc-h4"><a href="#Derivatives">Derivatives </a></li>
+<li class="toc-entry toc-h4"><a href="#Symmetric-Matrices">Symmetric Matrices </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#(Multi-variate)-Gaussians-/-GP">(Multi-variate) Gaussians / GP </a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#(Gaussian-Integrals)">(Gaussian Integrals) </a></li>
+<li class="toc-entry toc-h2"><a href="#Marginalization">Marginalization </a></li>
+<li class="toc-entry toc-h2"><a href="#Conditioning">Conditioning </a></li>
+<li class="toc-entry toc-h2"><a href="#Linear-Combinations">Linear Combinations </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#A-(simple)-implementation">A (simple) implementation </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-07-03-Gaussian-Processes-Theory.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="References">
+<a class="anchor" href="#References" aria-hidden="true"><span class="octicon octicon-link"></span></a>References<a class="anchor-link" href="#References"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The standard textbook on Gaussian Processes (GP) is that of Rasmussen and Williams. The book by Murphy on Machine Learning also has a nice intro to GP and how they connect with other ML methods. 
+Finally, the "Matrix Cookbook" has an extensive list of identities that are helpful for the GP derivations.</p>
+<ul>
+<li>
+<a href="http://www.gaussianprocess.org/gpml/">Gaussian Processes for Machine Learning</a>. C. E. Rasmussen and C. K. I. Williams, Cambridge, the MIT Press (2006)</li>
+<li>Machine Learning : A Probabilistic Perspective. K. P. Murphy, Cambridge, the MIT Press (2012)</li>
+<li>
+<a href="https://www2.imm.dtu.dk/pubdb/pubs/3274-full.html">The Matrix Cookbook</a>. K. B. Petersen and M. S. Pedersen (2012)</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Preliminaries">
+<a class="anchor" href="#Preliminaries" aria-hidden="true"><span class="octicon octicon-link"></span></a>Preliminaries<a class="anchor-link" href="#Preliminaries"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Manipulating GP will require a bit of matrix algebra and the use of some not very well know identities (at least to the author).
+Thus, we will start by giving (without proof) the main results needed to derive the basic GP equations.</p>
+<p>Let $\Sigma$ be a block matrix, defined as
+\begin{align}
+\Sigma &amp;= \begin{pmatrix}
+A &amp; C \\
+D &amp; B
+\end{pmatrix}
+\end{align}</p>
+<p>From the sub-matrices, define $E$ and $F$ as
+\begin{align}
+E &amp;= A - C B^{-1} D \\
+F &amp;= B - D A^{-1} C
+\end{align}</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Determinant">
+<a class="anchor" href="#Determinant" aria-hidden="true"><span class="octicon octicon-link"></span></a>Determinant<a class="anchor-link" href="#Determinant"> </a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The determinant of $\Sigma$ can be written in terms of that of $A$and $F$, or $B$ and $E$, as
+\begin{align}
+\det{\Sigma} &amp;= \det{A}\cdot \det{F} = \det{B}\cdot \det{E}
+\end{align}</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Inverse">
+<a class="anchor" href="#Inverse" aria-hidden="true"><span class="octicon octicon-link"></span></a>Inverse<a class="anchor-link" href="#Inverse"> </a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The matrix inverse of $\Sigma$ can also be expressed in block form as</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+\Sigma^{-1} &amp;= \begin{pmatrix}
+\widetilde{A} &amp; \widetilde{C}\\
+\widetilde{D} &amp; \widetilde{B}
+\end{pmatrix}\\
+&amp;=\begin{pmatrix}
+E^{-1} &amp; - A^{-1} C F^{-1} \\
+-F^{-1} D A^{-1}&amp; F^{-1}
+\end{pmatrix} \\
+&amp;= \begin{pmatrix}
+A^{-1} + A^{-1} C F^{-1} D A^{-1} &amp; -E^{-1} C B^{-1} \\
+-B^{-1} D E^{-1} &amp; B^{-1} + B^{-1} D E^{-1} C B^{-1}
+\end{pmatrix}
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Derivatives">
+<a class="anchor" href="#Derivatives" aria-hidden="true"><span class="octicon octicon-link"></span></a>Derivatives<a class="anchor-link" href="#Derivatives"> </a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>When "training" our GP models, it will be useful to be able to compute derivatives of these block matrices, with respect to the hyper-parameters $\Theta$.
+In particular, we will need the derivatives of the matrix inverse and the log of the determinant. These are given by</p>
+\begin{align}
+\frac{\partial}{\partial\theta} A^{-1} &amp;= -A^{-1} \frac{\partial A}{\partial\theta} A^{-1}\\
+\frac{\partial}{\partial\theta} \log{\left(\det{A}\right)} &amp;= \text{tr}{\left(A^{-1}\frac{\partial A}{\partial\theta}\right)}
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Symmetric-Matrices">
+<a class="anchor" href="#Symmetric-Matrices" aria-hidden="true"><span class="octicon octicon-link"></span></a>Symmetric Matrices<a class="anchor-link" href="#Symmetric-Matrices"> </a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the case that $\Sigma$ is a symmetric matrix, which is the only case we will be interested in here, $\Sigma = \Sigma^{t}$, which in turn implies that $A=A^t$, $B = B^{t}$, $D = C^{t}$, the block form of the matrix inverse (also symmetric) can be written as
+\begin{align}
+\Sigma^{-1} &amp;= \begin{pmatrix}
+\widetilde{A} &amp; \widetilde{C}\\
+\widetilde{C}^t &amp; \widetilde{B}
+\end{pmatrix} \
+&amp;=\begin{pmatrix}
+E^{-1} &amp; - A^{-1} C F^{-1} \</p>
+<ul>
+<li>F^{-1} C^{t} A^{-1} &amp; F^{-1}
+\end{pmatrix} \
+&amp;=\begin{pmatrix}
+A^{-1} + A^{-1} C F^{-1} C^{t} A^{-1}&amp; - E^{-1} C B^{-1} \\
+-B^{-1} C^{t} E^{-1} &amp; B^{-1} + B^{-1} C^{t} E^{-1} C B^{-1}
+\end{pmatrix}
+\end{align}</li>
+</ul>
+<p>with</p>
+\begin{align}
+E &amp;= A - C B^{-1} C^{t} \\
+F &amp;= B - C^{t} A^{-1} C
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="(Multi-variate)-Gaussians-/-GP">
+<a class="anchor" href="#(Multi-variate)-Gaussians-/-GP" aria-hidden="true"><span class="octicon octicon-link"></span></a>(Multi-variate) Gaussians / GP<a class="anchor-link" href="#(Multi-variate)-Gaussians-/-GP"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now we can turn our attention to GP. As defined in Rasmussen and Williams, a GP is "a collection of random variables, any finite number of which have a joint Gaussian distribution". What does this mean?</p>
+<p>Previously, for the Bayesian Parameter Estimation problem, we were given some data and a model (which on prior information was assumed to explain the data), and tasked with finding the distribution of the parameters that could explain the data. That is, we wanted to infer or learn the parameters from the data. However, this only works if we know the model. What happens when we don't posses this information?</p>
+<p>This leads us to the much trickier problem of "Non-parametric Bayesian Inference". Since we don't have a model to parametrize, we take the function values themselves to be the parameters! So it's not so much that there are no parameters, it's just that there is an infinite number of them. Instead of learning the parameters in some model, we will try to learn the function itself from the data.</p>
+<p>In the specific case of GP, we assume that the value of the function at each point (e.g., $x(t)$) is a random variable, and that they are all correlated, with a joint Gaussian distribution. Thus, the joint probability distribution for the $x = (x(t_1), x(t_2), \ldots x(t_N)) = (x_1, x_2, \ldots x_N)$ is given by a multi-variate Gaussian, specified by some mean $\mu$ and (symmetric) covariance matrix $\Sigma$. We express this as</p>
+\begin{align}x\sim \mathcal{N}(\mu, \Sigma)
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>which is to be interpreted according to
+\begin{align}
+p(x\lvert \mu, \Sigma) &amp;= \frac{1}{\sqrt{\det{\left(2\pi\Sigma\right)}}} \exp{\left[-\frac{1}{2}\delta x^t \Sigma^{-1}\delta x\right]}\qquad \left(\delta x= x - \mu\right)\\
+\int p(x\lvert \mu, \Sigma) \,\mathrm{d}x &amp;= 1 
+\end{align}</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>By definition the first and second moments are given by the average and covariance matrix</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+\langle x\rangle \equiv \int x p(x\lvert \mu, \Sigma) \,\mathrm{d}x &amp;= \mu \\
+\left\langle\delta x_i \delta x_j\right\rangle \equiv \int \delta x_i \delta x_j p(x\lvert \mu,\Sigma) \,\mathrm{d}x &amp;= \Sigma_{ij}
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="(Gaussian-Integrals)">
+<a class="anchor" href="#(Gaussian-Integrals)" aria-hidden="true"><span class="octicon octicon-link"></span></a>(Gaussian Integrals)<a class="anchor-link" href="#(Gaussian-Integrals)"> </a>
+</h4>
+<p>To compute the marginal and conditional distributions we will need to manipulate the quadratic expressions appearing in the exponential.</p>
+<p>In particular, we will need to compute integrals of the form</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+I(A, b, c) &amp;= \int \exp{\left[-\frac{1}{2} x^t A x + x^t b + c\right]} \,\mathrm{d}x
+\end{align}<p>where $A$ is a symmetric symmetric. This integral can be easily performed by completing the square, as follows</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+-\frac{1}{2} x^t A x + x^t b &amp;= -\frac{1}{2} x^t A x + b^t x \\
+&amp;= -\frac{1}{2}\left[x^t A x + b^t x + x^t b\right] \\
+&amp;= -\frac{1}{2}\left[x^t A^t x + b^t A^{-t} A^{t} x + x^t b\right]\\
+&amp;= -\frac{1}{2}\left[\left(x^t + b^t A^{-t}\right) A^t x + x^t b\right]\\
+&amp;= -\frac{1}{2}\left[\left(x + A^{-1} b\right)^t A^t x + x^t b\right] \\
+&amp;= -\frac{1}{2}\left[\left(x + A^{-1} b\right)^t A^t x + \left(x + A^{-1} b - A^{-1} b\right)^t b\right] \\
+&amp;= -\frac{1}{2}\left[\left(x + A^{-1} b\right)^t A x + \left(x + A^{-1} b\right)^t b - b^t A^{-t} b\right]\\
+&amp;= -\frac{1}{2}\left[\left(x + A^{-1} b\right)^t A x + \left(x + A^{-1} b\right)^t A A^{-1}b\right] + \frac{1}{2} b^t A^{-t} b \\
+&amp;= -\frac{1}{2}\left[\left(x + A^{-1} b\right)^t A \left(x + A^{-1} b\right)\right] + \frac{1}{2} b^t A^{-1} b
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>where we have repeatedly used the fact that a scalar is by definition symmetric, so $\alpha=\alpha^t$, $x^t y = y^t x$, $x^t A y = y^t A^t x$, and so on ($\alpha$ a scalar, $x$ and $y$ vectors, and $A$ a square matrix).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+I(A, b, c)&amp;= \int \exp{\left[-\frac{1}{2}x^t A x + x^t b + c\right]\mathrm{d}x} \\
+&amp;= \exp{\left[\frac{1}{2}b^t A^{-1} b + c\right]} \int\exp{\left[-\frac{1}{2} \left(x + A^{-1}b\right)^t A \left(x + A^{-1} b\right) + x^t b\right]} \\
+&amp;= \sqrt{\det{\left(2\pi A^{-1}\right)}} \exp{\left[-\frac{1}{2} b^t A^{-1} b + c\right]} \\
+&amp;= \sqrt{\frac{(2\pi)^{n}}{\det{A}}} \exp{\left[-\frac{1}{2} b^t A^{-1} b + c\right]}
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Marginalization">
+<a class="anchor" href="#Marginalization" aria-hidden="true"><span class="octicon octicon-link"></span></a>Marginalization<a class="anchor-link" href="#Marginalization"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now lets consider partitioning our set of points $x$ in two, $x_A$ and $x_B$, which could represent the (known) training data and (unknown) test data.
+The joint distribution, is given exactly by the expression above, but we can rewrite it in block form to highlight the contribution of the $x_A$ and $x_B$ dependence</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+p(x\lvert \mu, \Sigma) &amp;= \frac{1}{\sqrt{(2\pi)^n \det{\Sigma}}} \exp{\left[-\frac{1}{2}\delta x^t \Sigma^{-1} \delta x\right]}\, ,\qquad
+\Sigma = \begin{pmatrix}\Sigma_{AA} &amp; \Sigma_{AB} \\ \Sigma_{AB}^t &amp; \Sigma_{BB}\end{pmatrix}\\
+&amp;= \frac{1}{\sqrt{(2\pi)^n\det{\Sigma}}} \exp{\left[-\frac{1}{2}\begin{pmatrix}\delta x_A\\\delta x_B\end{pmatrix}^t \begin{pmatrix}\widetilde{\Sigma}_{AA} &amp; \widetilde{\Sigma}_{AB}\\
+\widetilde{\Sigma}_{AB}^t &amp; \widetilde{\Sigma}_{BB}\end{pmatrix}\begin{pmatrix}\delta x_A \\ \delta x_B\end{pmatrix}\right]}
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Where we used the properties of block matrices to rewrite the inverse of $\Sigma$ into block form.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Given this joint distribution for $x_A$ and $x_B$, what can we say about the distribution for $x_B$, regardless of $x_A$?</p>
+<p>By definition, we simply marginalize over $x_A$
+\begin{align}
+p(x_B\lvert\mu,\Sigma) &amp;= \int p(x_A,x_B\lvert\mu,\Sigma)\mathrm{d}x_A
+\end{align}</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To evaluate this integral, lets rewrite the terms appearing in the exponent, trying to separate out the $x_A$ and $x_B$ contributions</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+\delta x^t \Sigma^{-1}\delta x &amp;= \delta x_A^t\left(\widetilde{\Sigma}_{AA}\delta x_A + \widetilde{\Sigma}_{AB}\delta x_B\right) + \delta x_B^t \left(\widetilde{\Sigma}^t_{AB}\delta x_A + \widetilde{\Sigma}_{BB}\delta x_B\right) \\
+&amp;= \bigg[\delta x_A^t \widetilde{\Sigma}_{AA}\delta x_A + 2\delta x_A^t \widetilde{\Sigma}_{AB}\delta x_B\bigg] + \delta x_B^t \widetilde{\Sigma}_{BB}\delta x_B
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Again, using the properties of these block matrices, the determinant in the normalization factor can be conveniently written as</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+\det{\Sigma} = \det{\Sigma_{AA}}\cdot \det{\widetilde{\Sigma}_{BB}^{-1}} = \det{\Sigma_{BB}}\cdot \det{\widetilde{\Sigma}_{AA}^{-1}}
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Putting all this together, the marginal distribution for $x_B$ takes the form</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+p(x_B\lvert\mu,\Sigma) &amp;= \left(\frac{1}{\sqrt{(2\pi)^{n_A}\det{\widetilde{\Sigma}_{AA}^{-1}}}}\underbrace{\int \exp{\left[-\frac{1}{2}\delta x_A^t \widetilde{\Sigma}_{AA}\delta x_A - \delta x_A^t \widetilde{\Sigma}_{AB}\delta x_B\right]}\mathrm{d}x_A}_{I(\widetilde{\Sigma}_{AA}, -\widetilde{\Sigma}_{AB}\delta x_B, 0)}\right)\times
+\left(\frac{1}{\sqrt{(2\pi)^{n_B}\det{\Sigma_{BB}}}} \exp{\left[-\frac{1}{2}\delta x^{t}_B \widetilde{\Sigma}_{BB}\delta x_B\right]}\right) \\
+&amp;= \left(\frac{1}{\sqrt{(2\pi)^{n_A}\det{\widetilde{\Sigma}_{AA}^{-1}}}} \times \sqrt{\frac{(2\pi)^{n_A}}{\det\widetilde{\Sigma}_{AA}}} \exp{\left[-\frac{1}{2}\left(\widetilde{\Sigma}_{AB}\delta x_B\right)^t\widetilde{\Sigma}_{AA}^{-1}\left(\widetilde{\Sigma}_{AB}\delta x_B\right)\right]}\right)\times
+\left(\frac{1}{\sqrt{(2\pi)^{n_B}\det{\Sigma_{BB}}}} \exp{\left[-\frac{1}{2}\delta x^{t}_B \widetilde{\Sigma}_{BB}\delta x_B\right]}\right) \\
+&amp;=\frac{1}{\sqrt{(2\pi)^{n_B}\det{\Sigma_{BB}}}} \exp{\left[-\frac{1}{2}\delta x^t_B\left(\widetilde{\Sigma}_{BB}- \widetilde{\Sigma}_{AB}^t \widetilde{\Sigma}_{AA}^{-1} \widetilde{\Sigma}_{AB}\right)\delta x_B\right]}
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This is almost in the form of a multi-variate Gaussian. We can further simplify it by using the properties of block matrices listed above, since</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+\widetilde{\Sigma}_{AB}^t \widetilde{\Sigma}_{AA}^{-1}\widetilde{\Sigma}_{AB} &amp;= \widetilde{C}^t \widetilde{A}^{-1} \widetilde{C} \\
+&amp;=\left(-B^{-1} C^{t} \widetilde{A}\right) \widetilde{A}^{-1}\left(\widetilde{A} C B^{-1}\right) \\
+&amp;= B^{-1}C^t \widetilde{A}C B^{-1}\\
+&amp;\equiv \widetilde{B} - B^{-1} \\
+&amp;= \widetilde{\Sigma}_{BB} - \Sigma_{BB}^{-1}
+\end{align}<p>where we have used the fact that $\widetilde{C}= -\widetilde{A}C B^{-1}$.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We thus arrive at the result that the marginal distribution for $x_B$ is also Gaussian, with average $\mu_B$ and covariance matrix $\Sigma_{BB}$.</p>
+<p>We can simply read off the distribution for $x_B$ from the original joint distribution!
+\begin{align}
+p(x_B\lvert\mu,\Sigma) = p(x_B\lvert \mu_B, \Sigma_{BB}) &amp;= \frac{1}{\sqrt{(2\pi)^{n_B}\det{\Sigma_{BB}}}} \exp{\left[-\frac{1}{2}\delta x^{t}_B \Sigma^{-1}_{BB}\delta x_B\right]} \\
+x_B &amp;\sim \mathcal{N}(\mu_B, \Sigma_{BB})
+\end{align}</p>
+<p>This is the meaning of the quoted text which says that "any finite number of which have a joint Gaussian distribution".</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Conditioning">
+<a class="anchor" href="#Conditioning" aria-hidden="true"><span class="octicon octicon-link"></span></a>Conditioning<a class="anchor-link" href="#Conditioning"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A more useful result comes from considering the conditional distribution. Say we have already measured $x_B$, this would be our training data set, what can we say about the function values $x_A$ at other points?</p>
+<p>From Bayes' theorem, this conditional distribution is simply given by</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+p(x_A\lvert x_B, \mu, \Sigma) &amp;= \frac{p(x_A, x_B\lvert \mu, \Sigma)}{p(x_B\lvert \mu, \Sigma)}
+\end{align}<p>After some simple manipulations, we will see that this distribution again has the form of a multi-variate Gaussian, although the average and covariance matrices will be a bit more complicated.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To start, let us rewrite the exponent appearing in the numerator, in order to cancel out the exponent in the denominator.
+\begin{align}
+\delta x^t \Sigma^{-1}\delta x &amp;= \delta x_A^t\left(\widetilde{\Sigma}_{AA}\delta x_A+ \widetilde{\Sigma}_{AB}\delta x_B\right) + \delta x_B^t \left(\widetilde{\Sigma}^t_{AB}\delta x_A + \widetilde{\Sigma}_{BB}\delta x_B\right) \\
+&amp;= \bigg[\delta x_A^t \widetilde{\Sigma}_{AA}\delta x_A + 2\delta x_A^t \widetilde{\Sigma}_{AB}\delta x_B\bigg] + \delta x_B^t \widetilde{\Sigma}_{BB}\delta x_B\\
+&amp;= \bigg[\delta x_A^t \widetilde{\Sigma}_{AA}\left(\delta x_A + \widetilde{\Sigma}_{AA}^{-1}\widetilde{\Sigma}_{AB}\delta x_B\right) + \delta x_B^t \widetilde{\Sigma}_{AB}^t \delta x_A\bigg] + \delta x_B^t \widetilde{\Sigma}_{BB}\delta x_B\\
+&amp;= \bigg[\delta x_A^t \widetilde{\Sigma}_{AA}\left(\delta x_A + \widetilde{\Sigma}_{AA}^{-1}\widetilde{\Sigma}_{AB}\delta x_B\right) + \delta x_B^t \widetilde{\Sigma}_{AB}^t\widetilde{\Sigma}_{AA}^{-t}\widetilde{\Sigma}_{AA}^t \left(\delta x_A + \widetilde{\Sigma}_{AA}^{-1}\widetilde{\Sigma}_{AB}\delta x_B - \widetilde{\Sigma}_{AA}^{-1}\widetilde{\Sigma}_{AB}\delta x_B\right)\bigg] + \delta x_B^t \widetilde{\Sigma}_{BB}\delta x_B \\
+&amp;= \bigg[\left(\delta x_A + \widetilde{\Sigma}_{AA}^{-1}\widetilde{\Sigma}_{AB}\delta x_B\right)^t \widetilde{\Sigma}_{AA}\left(\delta x_A + \widetilde{\Sigma}_{AA}^{-1}\widetilde{\Sigma}_{AB}\delta x_B\right)\bigg] -
+\delta x_B^t \underbrace{\bigg[\widetilde{\Sigma}_{AB}^t\widetilde{\Sigma}_{AA}^{-t}\widetilde{\Sigma}_{AB} - \widetilde{\Sigma}_{BB}\bigg]}_{-\Sigma_{BB}^{-1}}\delta x_B
+\end{align}</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>From which we see that the second term on the right hand side will exactly cancel the exponential in the denominator.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now, lets consider the ratio of normalization constants</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+\sqrt{\frac{(2\pi)^{n_B}\det{\Sigma_{BB}}}{(2\pi)^{n_A + n_B}\det{\Sigma}}} &amp;= \sqrt{\frac{\det{\Sigma_{BB}}}{(2\pi)^{n_A}\det{\Sigma_{BB}}\times\det{\widetilde{\Sigma}_{AA}^{-1}}}} \\
+&amp;= \frac{1}{\sqrt{(2\pi)^{n_A} \det{\widetilde{\Sigma}_{AA}^{-1}}}}
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As promised, the conditional distribution for $x_A$ (conditioned on $x_B$) is another Gaussian!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+p(x_A\lvert x_B, \mu, \Sigma) &amp;= \frac{1}{\sqrt{(2\pi)^{n_A}\det{\widetilde{\Sigma}_{AA}^{-1}}}} \exp{\left[-\frac{1}{2}\left(x_A  - \mu_A + \widetilde{\Sigma}_{AA}^{-1}\widetilde{\Sigma}_{AB}\delta x_B\right)^t \widetilde{\Sigma}_{AA}\left(x_A - \mu_A + \widetilde{\Sigma}_{AA}^{-1}\widetilde{\Sigma}_{AB}\delta x_B\right)\right]}
+\end{align}\begin{align}
+x_A\lvert x_B &amp;\sim \mathcal{N}\left(\mu_A - \widetilde{\Sigma}_{AA}^{-1}\widetilde{\Sigma}_{AB}\delta x_B, \widetilde{\Sigma}_{AA}^{-1}\right)
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Since it's more convenient to express all quantities in terms of the block matrices of $\Sigma$, we can rewrite the average and covariance using the following relationships</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+\widetilde{\Sigma}_{AA}^{-1} &amp;= \Sigma_{AA} - \Sigma_{AB} \Sigma_{BB}^{-1} \Sigma_{AB}^t
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+\widetilde{\Sigma}_{AA}^{-1}\widetilde{\Sigma}_{AB} &amp;\equiv \widetilde{A}^{-1} \widetilde{C}\\
+&amp;= -\widetilde{A}^{-1}\widetilde{A} C B^{-1} \\
+&amp;= - C B^{-1} \\
+&amp;= -\Sigma_{AB}\Sigma_{BB}^{-1}
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>From which we obtain the equivalent expression</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+\begin{align}
+x_A\lvert x_B \sim \mathcal{N}\left(\mu_A + \Sigma_{AB}\Sigma_{BB}^{-1}\delta x_B, \Sigma_{AA}-\Sigma_{AB}\Sigma_{BB}^{-1}\Sigma^{t}_{AB}\right)
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This is it! This is (almost) everything we need to do some Machine Learnign with GP.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Linear-Combinations">
+<a class="anchor" href="#Linear-Combinations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Linear Combinations<a class="anchor-link" href="#Linear-Combinations"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>One of the benefits of using GP lies in their linearity.
+If $x$ and $y$ are two GP, then any linear combination of them is also a GP.</p>
+<p>In particular, 
+\begin{align}
+x&amp;\sim \mathcal{N}(\mu_x, \Sigma_x) \\
+y&amp;\sim \mathcal{N}(\mu_y, \Sigma_y) \\
+A x + B y + c &amp;\sim \mathcal{N}(A\mu_x + B\mu_y + c, A\Sigma_x A^t + B\Sigma_y B^t)
+\end{align}</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Unfortunately, products of GP do not result in GP...</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="A-(simple)-implementation">
+<a class="anchor" href="#A-(simple)-implementation" aria-hidden="true"><span class="octicon octicon-link"></span></a>A (simple) implementation<a class="anchor-link" href="#A-(simple)-implementation"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For improved numerical stability and computational cost, it is recommended not to compute the matrix inverses appearing in the expressions for the averages and covariances of the conditional distribution. A better approach, which is still quite expensive, is to use the Cholesky decomposition.</p>
+<p>If $A$ be a positive deffinite matrix (i.e., a covariance matrix $\Sigma$), $A$ can be written as the product of a lower-triangular matrix $L$ and its transpose
+\begin{align}
+A&amp;= L L^t
+\end{align}
+such that expression of the form $A^{-1} b = x$, for known $A$ and $b$ can be computed as
+\begin{align}
+(L L^t)^{-1} b &amp;= x\\
+L^{-t} L^{-1} b &amp;= x\\
+L^t \backslash \left(L \backslash b\right) &amp;= x
+\end{align}</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Where we have adopted the backslash notation used by Rasmussen and Williams
+\begin{align}
+A x&amp;= b\\
+x &amp;= A^{-1} b\\
+x &amp;\equiv A\backslash b
+\end{align}
+where it is assumed that we know $A$, but not necessarily $A^{-1}$, and $b$. This notation is useful to emphasis the fact that we don't want to calculate $A^{-1}$ explicitly, we just need its product with some vector $b$ (i.e., to solve for $x$).</p>
+<p>Using this Cholesky decomposition, a sandwich product of the form $b^{t} A^{-1} c$ would be expressed as
+\begin{align}
+b^t A^{-1}c &amp;= b^{t}L^{-t} L^{-1} c \\
+&amp;= (L^{-1} b)^t (L^{-1} c)\\
+&amp;= w^t v
+\end{align}
+with $v = L\backslash c$ and $w = L\backslash b$.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the same way, we can evaluate more complicated expression, such as $A = C^t B^{-1} C$, without directly computing $B^{-1}$.
+Let $C = (c_1, c_2, \ldots, c_n)$, where $c_i$ are the column-vector components of $C$. We have</p>
+\begin{align}
+A &amp;= (c_1, c_2, \ldots, c_n)^t B^{-1} (c_1, c_2, \ldots c_n) \\
+&amp;= \begin{pmatrix}c_1\\ c_2\\ \vdots\\ c_n\end{pmatrix}
+\begin{pmatrix}
+B^{-1} c_1 &amp; B^{-1} c_2 &amp;\ldots &amp; B^{-1} c_n
+\end{pmatrix}\\
+&amp;=\begin{pmatrix}
+c_1^t B^{-1}c_1 &amp; \ldots &amp; c_1^t B^{-1} c_n \\
+\vdots &amp; \ddots &amp; \vdots \\
+c_n^t B^{-1}c_1 &amp; \ldots &amp; c_n^t B^{-1} c_n
+\end{pmatrix}
+\end{align}<p>where each term is computed using the expression derived above
+\begin{align}
+(A)_{ij} &amp;= c_i^t B^{-1} c_j \equiv (L\backslash c_i)^t (L\backslash c_j)
+\end{align}
+with $L$ now the Cholesky decomposition of $B=LL^t$.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Evaluating terms like $\log{\det{A}}$ is also considerably simplified</p>
+\begin{align}
+\log\det{A} &amp;= \log\det{LL^t} \\
+&amp;= \log\left(\det{L}\cdot \det{L^t}\right) \\
+&amp;= 2\log\det{L} = 2\sum_i\log L_{ii}
+\end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>However, as hinted at above, this is still not the ideal way to evaluate the GP. The reason for this is the $\mathcal{O}(n^3)$ scaling of the Cholesky decomposition.
+Fortunately, in recent years advanced matrix-matrix algorithms have been developed that allow for exact calculations even on millions of points!</p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="johnjmolina/MLKyoto"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/MLKyoto/gaussian%20processes/2020/07/03/Gaussian-Processes-Theory.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/MLKyoto/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/MLKyoto/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/MLKyoto/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Data Analysis and Machine Learning Blog from Kyoto</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/johnjmolina" title="johnjmolina"><svg class="svg-icon grey"><use xlink:href="/MLKyoto/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/molinajohnj" title="molinajohnj"><svg class="svg-icon grey"><use xlink:href="/MLKyoto/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
