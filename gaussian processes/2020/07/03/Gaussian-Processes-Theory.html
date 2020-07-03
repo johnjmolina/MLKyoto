@@ -329,24 +329,21 @@ In particular, we will need the derivatives of the matrix inverse and the log of
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>In the case that $\Sigma$ is a symmetric matrix, which is the only case we will be interested in here, $\Sigma = \Sigma^{t}$, which in turn implies that $A=A^t$, $B = B^{t}$, $D = C^{t}$, the block form of the matrix inverse (also symmetric) can be written as
+<p>In the case that $\Sigma$ is a symmetric matrix, which is the only case we will be interested in here, $\Sigma = \Sigma^{t}$, which in turn implies that $A=A^t$, $B = B^{t}$, $D = C^{t}$, the block form of the matrix inverse (also symmetric) can be written as</p>
 \begin{align}
 \Sigma^{-1} &amp;= \begin{pmatrix}
 \widetilde{A} &amp; \widetilde{C}\\
 \widetilde{C}^t &amp; \widetilde{B}
-\end{pmatrix} \
+\end{pmatrix} \\
 &amp;=\begin{pmatrix}
-E^{-1} &amp; - A^{-1} C F^{-1} \</p>
-<ul>
-<li>F^{-1} C^{t} A^{-1} &amp; F^{-1}
-\end{pmatrix} \
+E^{-1} &amp; - A^{-1} C F^{-1} \\
+- F^{-1} C^{t} A^{-1} &amp; F^{-1}
+\end{pmatrix} \\
 &amp;=\begin{pmatrix}
-A^{-1} + A^{-1} C F^{-1} C^{t} A^{-1}&amp; - E^{-1} C B^{-1} \\
--B^{-1} C^{t} E^{-1} &amp; B^{-1} + B^{-1} C^{t} E^{-1} C B^{-1}
+ A^{-1} + A^{-1} C F^{-1} C^{t} A^{-1}&amp; - E^{-1} C B^{-1} \\
+ -B^{-1} C^{t} E^{-1} &amp; B^{-1} + B^{-1} C^{t} E^{-1} C B^{-1}
 \end{pmatrix}
-\end{align}</li>
-</ul>
-<p>with</p>
+\end{align}<p>with</p>
 \begin{align}
 E &amp;= A - C B^{-1} C^{t} \\
 F &amp;= B - C^{t} A^{-1} C
