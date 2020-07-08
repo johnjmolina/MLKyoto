@@ -161,7 +161,7 @@ window.onload = wrap_img;
 </li>
 <li class="toc-entry toc-h1"><a href="#(Multi-variate)-Gaussians-/-GP">(Multi-variate) Gaussians / GP </a>
 <ul>
-<li class="toc-entry toc-h4"><a href="#(Gaussian-Integrals)">(Gaussian Integrals) </a></li>
+<li class="toc-entry toc-h4"><a href="#Digression-on-Gaussian-Integrals">Digression on Gaussian Integrals </a></li>
 <li class="toc-entry toc-h2"><a href="#Marginalization">Marginalization </a></li>
 <li class="toc-entry toc-h2"><a href="#Conditioning">Conditioning </a></li>
 <li class="toc-entry toc-h2"><a href="#Linear-Combinations">Linear Combinations </a></li>
@@ -251,11 +251,10 @@ F &amp;= B - D A^{-1} C
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The determinant of $\Sigma$ can be written in terms of that of $A$and $F$, or $B$ and $E$, as
+<p>The determinant of $\Sigma$ can be written in terms of that of $A$ and $F$, or $B$ and $E$, as</p>
 \begin{align}
 \det{\Sigma} &amp;= \det{A}\cdot \det{F} = \det{B}\cdot \det{E}
-\end{align}</p>
-
+\end{align}
 </div>
 </div>
 </div>
@@ -308,7 +307,7 @@ A^{-1} + A^{-1} C F^{-1} D A^{-1} &amp; -E^{-1} C B^{-1} \\
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>When "training" our GP models, it will be useful to be able to compute derivatives of these block matrices, with respect to the hyper-parameters $\Theta$.
+<p>When "training" our GP models, it will be useful to be able to compute derivatives of these block matrices with respect to the hyper-parameters $\Theta$.
 In particular, we will need the derivatives of the matrix inverse and the log of the determinant. These are given by</p>
 \begin{align}
 \frac{\partial}{\partial\theta} A^{-1} &amp;= -A^{-1} \frac{\partial A}{\partial\theta} A^{-1}\\
@@ -352,9 +351,22 @@ E^{-1} &amp; - A^{-1} C F^{-1} \\
 \end{pmatrix}
 \end{align}<p>with</p>
 \begin{align}
-E &amp;= A - C B^{-1} C^{t} \\
-F &amp;= B - C^{t} A^{-1} C
+\widetilde{A}^{-1} = E &amp;= A - C B^{-1} C^{t} \\
+\widetilde{B}^{-1} = F &amp;= B - C^{t} A^{-1} C
 \end{align}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The following form of the relations will be particularly useful for the derivations below
+\begin{align}
+\widetilde{C} &amp;= -E^{-1} C B^{-1} = - \widetilde{A} C B^{-1} \\
+\widetilde{B} &amp;= B^{-1} + B^{-1} C^t E^{-1} C B^{-1} = B^{-1} + B^{-1} C^t \widetilde{A} C B^{-1} \Longrightarrow
+\widetilde{B} - B^{-1} = B^{-1} C^t \widetilde{A}C B^{-1}
+\end{align}</p>
+
 </div>
 </div>
 </div>
@@ -373,7 +385,7 @@ F &amp;= B - C^{t} A^{-1} C
 <p>Now we can turn our attention to GP. As defined in Rasmussen and Williams, a GP is "a collection of random variables, any finite number of which have a joint Gaussian distribution". What does this mean?</p>
 <p>Previously, for the Bayesian Parameter Estimation problem, we were given some data and a model (which on prior information was assumed to explain the data), and tasked with finding the distribution of the parameters that could explain the data. That is, we wanted to infer or learn the parameters from the data. However, this only works if we know the model. What happens when we don't posses this information?</p>
 <p>This leads us to the much trickier problem of "Non-parametric Bayesian Inference". Since we don't have a model to parametrize, we take the function values themselves to be the parameters! So it's not so much that there are no parameters, it's just that there is an infinite number of them. Instead of learning the parameters in some model, we will try to learn the function itself from the data.</p>
-<p>In the specific case of GP, we assume that the value of the function at each point (e.g., $x(t)$) is a random variable, and that they are all correlated, with a joint Gaussian distribution. Thus, the joint probability distribution for the $x = (x(t_1), x(t_2), \ldots x(t_N)) = (x_1, x_2, \ldots x_N)$ is given by a multi-variate Gaussian, specified by some mean $\mu$ and (symmetric) covariance matrix $\Sigma$. We express this as</p>
+<p>In the specific case of GP, we assume that the value of the function at each point (e.g., $x(t)$) is a random variable, and that they are all correlated, with a joint Gaussian distribution. Thus, the joint probability distribution for the $x = (x(t_1), x(t_2), \ldots x(t_n)) = (x_1, x_2, \ldots x_n)$ is given by a multi-variate Gaussian, specified by some mean $\mu$ and (symmetric) covariance matrix $\Sigma$. We express this as</p>
 \begin{align}x\sim \mathcal{N}(\mu, \Sigma)
 \end{align}
 </div>
@@ -412,8 +424,8 @@ p(x\lvert \mu, \Sigma) &amp;= \frac{1}{\sqrt{\det{\left(2\pi\Sigma\right)}}} \ex
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="(Gaussian-Integrals)">
-<a class="anchor" href="#(Gaussian-Integrals)" aria-hidden="true"><span class="octicon octicon-link"></span></a>(Gaussian Integrals)<a class="anchor-link" href="#(Gaussian-Integrals)"> </a>
+<h4 id="Digression-on-Gaussian-Integrals">
+<a class="anchor" href="#Digression-on-Gaussian-Integrals" aria-hidden="true"><span class="octicon octicon-link"></span></a>Digression on Gaussian Integrals<a class="anchor-link" href="#Digression-on-Gaussian-Integrals"> </a>
 </h4>
 <p>To compute the marginal and conditional distributions we will need to manipulate the quadratic expressions appearing in the exponential.</p>
 <p>In particular, we will need to compute integrals of the form</p>
@@ -426,7 +438,7 @@ p(x\lvert \mu, \Sigma) &amp;= \frac{1}{\sqrt{\det{\left(2\pi\Sigma\right)}}} \ex
 <div class="text_cell_render border-box-sizing rendered_html">
 \begin{align}
 I(A, b, c) &amp;= \int \exp{\left[-\frac{1}{2} x^t A x + x^t b + c\right]} \,\mathrm{d}x
-\end{align}<p>where $A$ is a symmetric symmetric. This integral can be easily performed by completing the square, as follows</p>
+\end{align}<p>where $A$ is a symmetric symmetric. This integral can be performed easily by completing the square, as follows</p>
 
 </div>
 </div>
@@ -436,14 +448,14 @@ I(A, b, c) &amp;= \int \exp{\left[-\frac{1}{2} x^t A x + x^t b + c\right]} \,\ma
 <div class="text_cell_render border-box-sizing rendered_html">
 \begin{align}
 -\frac{1}{2} x^t A x + x^t b &amp;= -\frac{1}{2} x^t A x + b^t x \\
-&amp;= -\frac{1}{2}\left[x^t A x + b^t x + x^t b\right] \\
-&amp;= -\frac{1}{2}\left[x^t A^t x + b^t A^{-t} A^{t} x + x^t b\right]\\
-&amp;= -\frac{1}{2}\left[\left(x^t + b^t A^{-t}\right) A^t x + x^t b\right]\\
-&amp;= -\frac{1}{2}\left[\left(x + A^{-1} b\right)^t A^t x + x^t b\right] \\
-&amp;= -\frac{1}{2}\left[\left(x + A^{-1} b\right)^t A^t x + \left(x + A^{-1} b - A^{-1} b\right)^t b\right] \\
-&amp;= -\frac{1}{2}\left[\left(x + A^{-1} b\right)^t A x + \left(x + A^{-1} b\right)^t b - b^t A^{-t} b\right]\\
-&amp;= -\frac{1}{2}\left[\left(x + A^{-1} b\right)^t A x + \left(x + A^{-1} b\right)^t A A^{-1}b\right] + \frac{1}{2} b^t A^{-t} b \\
-&amp;= -\frac{1}{2}\left[\left(x + A^{-1} b\right)^t A \left(x + A^{-1} b\right)\right] + \frac{1}{2} b^t A^{-1} b
+&amp;= -\frac{1}{2}\left[x^t A x - b^t x - x^t b\right] \\
+&amp;= -\frac{1}{2}\left[x^t A^t x - b^t A^{-t} A^{t} x - x^t b\right]\\
+&amp;= -\frac{1}{2}\left[\left(x^t - b^t A^{-t}\right) A^t x - x^t b\right]\\
+&amp;= -\frac{1}{2}\left[\left(x - A^{-1} b\right)^t A^t x - x^t b\right] \\
+&amp;= -\frac{1}{2}\left[\left(x - A^{-1} b\right)^t A^t x - \left(x - A^{-1} b + A^{-1} b\right)^t b\right] \\
+&amp;= -\frac{1}{2}\left[\left(x - A^{-1} b\right)^t A^t x - \left(x - A^{-1} b\right)^t b - b^t A^{-t} b\right]\\
+&amp;= -\frac{1}{2}\left[\left(x - A^{-1} b\right)^t A x - \left(x - A^{-1} b\right)^t A A^{-1}b\right] + \frac{1}{2} b^t A^{-1} b \\
+&amp;= -\frac{1}{2}\left[\left(x - A^{-1} b\right)^t A \left(x - A^{-1} b\right)\right] + \frac{1}{2} b^t A^{-1} b
 \end{align}
 </div>
 </div>
@@ -461,9 +473,9 @@ I(A, b, c) &amp;= \int \exp{\left[-\frac{1}{2} x^t A x + x^t b + c\right]} \,\ma
 <div class="text_cell_render border-box-sizing rendered_html">
 \begin{align}
 I(A, b, c)&amp;= \int \exp{\left[-\frac{1}{2}x^t A x + x^t b + c\right]\mathrm{d}x} \\
-&amp;= \exp{\left[\frac{1}{2}b^t A^{-1} b + c\right]} \int\exp{\left[-\frac{1}{2} \left(x + A^{-1}b\right)^t A \left(x + A^{-1} b\right) + x^t b\right]} \\
-&amp;= \sqrt{\det{\left(2\pi A^{-1}\right)}} \exp{\left[-\frac{1}{2} b^t A^{-1} b + c\right]} \\
-&amp;= \sqrt{\frac{(2\pi)^{n}}{\det{A}}} \exp{\left[-\frac{1}{2} b^t A^{-1} b + c\right]}
+&amp;= \exp{\left[\frac{1}{2}b^t A^{-1} b + c\right]} \underbrace{\int\exp{\left[-\frac{1}{2} \left(x - A^{-1}b\right)^t A \left(x - A^{-1} b\right)\right]} \mathrm{d}x}_{\equiv \sqrt{\det{\left(2\pi A^{-1}\right)}}}\\
+&amp;= \sqrt{\det{\left(2\pi A^{-1}\right)}} \exp{\left[\frac{1}{2} b^t A^{-1} b + c\right]} \\
+&amp;= \sqrt{\frac{(2\pi)^{n}}{\det{A}}} \exp{\left[\frac{1}{2} b^t A^{-1} b + c\right]}
 \end{align}
 </div>
 </div>
@@ -480,8 +492,8 @@ I(A, b, c)&amp;= \int \exp{\left[-\frac{1}{2}x^t A x + x^t b + c\right]\mathrm{d
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Now lets consider partitioning our set of points $x$ in two, $x_A$ and $x_B$, which could represent the (known) training data and (unknown) test data.
-The joint distribution, is given exactly by the expression above, but we can rewrite it in block form to highlight the contribution of the $x_A$ and $x_B$ dependence</p>
+<p>Now lets consider partitioning our set of points $x$ in two, $x_A$ and $x_B$, which could represent the (known) training data and (unknown) test data, respectively.
+The joint distribution, is given exactly by the expression above, but we can rewrite it in block form to highlight the contribution of the $x_A$ and $x_B$ points</p>
 
 </div>
 </div>
@@ -567,7 +579,7 @@ p(x_B\lvert\mu,\Sigma) &amp;= \int p(x_A,x_B\lvert\mu,\Sigma)\mathrm{d}x_A
 \begin{align}
 p(x_B\lvert\mu,\Sigma) &amp;= \left(\frac{1}{\sqrt{(2\pi)^{n_A}\det{\widetilde{\Sigma}_{AA}^{-1}}}}\underbrace{\int \exp{\left[-\frac{1}{2}\delta x_A^t \widetilde{\Sigma}_{AA}\delta x_A - \delta x_A^t \widetilde{\Sigma}_{AB}\delta x_B\right]}\mathrm{d}x_A}_{I(\widetilde{\Sigma}_{AA}, -\widetilde{\Sigma}_{AB}\delta x_B, 0)}\right)\times
 \left(\frac{1}{\sqrt{(2\pi)^{n_B}\det{\Sigma_{BB}}}} \exp{\left[-\frac{1}{2}\delta x^{t}_B \widetilde{\Sigma}_{BB}\delta x_B\right]}\right) \\
-&amp;= \left(\frac{1}{\sqrt{(2\pi)^{n_A}\det{\widetilde{\Sigma}_{AA}^{-1}}}} \times \sqrt{\frac{(2\pi)^{n_A}}{\det\widetilde{\Sigma}_{AA}}} \exp{\left[-\frac{1}{2}\left(\widetilde{\Sigma}_{AB}\delta x_B\right)^t\widetilde{\Sigma}_{AA}^{-1}\left(\widetilde{\Sigma}_{AB}\delta x_B\right)\right]}\right)\times
+&amp;= \left(\frac{1}{\sqrt{(2\pi)^{n_A}\det{\widetilde{\Sigma}_{AA}^{-1}}}} \times \sqrt{\frac{(2\pi)^{n_A}}{\det\widetilde{\Sigma}_{AA}}} \exp{\left[\frac{1}{2}\left(\widetilde{\Sigma}_{AB}\delta x_B\right)^t\widetilde{\Sigma}_{AA}^{-1}\left(\widetilde{\Sigma}_{AB}\delta x_B\right)\right]}\right)\times
 \left(\frac{1}{\sqrt{(2\pi)^{n_B}\det{\Sigma_{BB}}}} \exp{\left[-\frac{1}{2}\delta x^{t}_B \widetilde{\Sigma}_{BB}\delta x_B\right]}\right) \\
 &amp;=\frac{1}{\sqrt{(2\pi)^{n_B}\det{\Sigma_{BB}}}} \exp{\left[-\frac{1}{2}\delta x^t_B\left(\widetilde{\Sigma}_{BB}- \widetilde{\Sigma}_{AB}^t \widetilde{\Sigma}_{AA}^{-1} \widetilde{\Sigma}_{AB}\right)\delta x_B\right]}
 \end{align}
@@ -587,7 +599,7 @@ p(x_B\lvert\mu,\Sigma) &amp;= \left(\frac{1}{\sqrt{(2\pi)^{n_A}\det{\widetilde{\
 <div class="text_cell_render border-box-sizing rendered_html">
 \begin{align}
 \widetilde{\Sigma}_{AB}^t \widetilde{\Sigma}_{AA}^{-1}\widetilde{\Sigma}_{AB} &amp;= \widetilde{C}^t \widetilde{A}^{-1} \widetilde{C} \\
-&amp;=\left(-B^{-1} C^{t} \widetilde{A}\right) \widetilde{A}^{-1}\left(\widetilde{A} C B^{-1}\right) \\
+&amp;=\left(-B^{-1} C^{t} \widetilde{A}\right) \widetilde{A}^{-1}\left(-\widetilde{A} C B^{-1}\right) \\
 &amp;= B^{-1}C^t \widetilde{A}C B^{-1}\\
 &amp;\equiv \widetilde{B} - B^{-1} \\
 &amp;= \widetilde{\Sigma}_{BB} - \Sigma_{BB}^{-1}
@@ -748,7 +760,7 @@ x_A\lvert x_B \sim \mathcal{N}\left(\mu_A + \Sigma_{AB}\Sigma_{BB}^{-1}\delta x_
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>This is it! This is (almost) everything we need to do some Machine Learnign with GP.</p>
+<p>This is it! This is (almost) everything we need to do some Machine Learning with GP.</p>
 
 </div>
 </div>
