@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Gaussian Processes 1 - Application | Machine Learning Kyoto</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Gaussian Processes 1 - Application" />
+<meta name="author" content="John J. Molina" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="We look at how to use GP to learn non-linefar partial differential equations" />
+<meta property="og:description" content="We look at how to use GP to learn non-linefar partial differential equations" />
+<link rel="canonical" href="https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/08/27/Gaussian-Processes-Applications-Hidden-Physics-Models.html" />
+<meta property="og:url" content="https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/08/27/Gaussian-Processes-Applications-Hidden-Physics-Models.html" />
+<meta property="og:site_name" content="Machine Learning Kyoto" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-08-27T00:00:00-05:00" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"John J. Molina"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/08/27/Gaussian-Processes-Applications-Hidden-Physics-Models.html"},"description":"We look at how to use GP to learn non-linefar partial differential equations","@type":"BlogPosting","url":"https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/08/27/Gaussian-Processes-Applications-Hidden-Physics-Models.html","headline":"Gaussian Processes 1 - Application","dateModified":"2020-08-27T00:00:00-05:00","datePublished":"2020-08-27T00:00:00-05:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/MLKyoto/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://johnjmolina.github.io/MLKyoto/feed.xml" title="Machine Learning Kyoto" /><link rel="shortcut icon" type="image/x-icon" href="/MLKyoto/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Gaussian Processes 1 - Application | Machine Learning Kyoto</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Gaussian Processes 1 - Application" />
+<meta name="author" content="John J. Molina" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="We look at how to use GP to learn non-linefar partial differential equations" />
+<meta property="og:description" content="We look at how to use GP to learn non-linefar partial differential equations" />
+<link rel="canonical" href="https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/08/27/Gaussian-Processes-Applications-Hidden-Physics-Models.html" />
+<meta property="og:url" content="https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/08/27/Gaussian-Processes-Applications-Hidden-Physics-Models.html" />
+<meta property="og:site_name" content="Machine Learning Kyoto" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-08-27T00:00:00-05:00" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"John J. Molina"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/08/27/Gaussian-Processes-Applications-Hidden-Physics-Models.html"},"description":"We look at how to use GP to learn non-linefar partial differential equations","@type":"BlogPosting","url":"https://johnjmolina.github.io/MLKyoto/gaussian%20processes/2020/08/27/Gaussian-Processes-Applications-Hidden-Physics-Models.html","headline":"Gaussian Processes 1 - Application","dateModified":"2020-08-27T00:00:00-05:00","datePublished":"2020-08-27T00:00:00-05:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://johnjmolina.github.io/MLKyoto/feed.xml" title="Machine Learning Kyoto" />
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/MLKyoto/">Machine Learning Kyoto</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/MLKyoto/about/">About Me</a><a class="page-link" href="/MLKyoto/search/">Search</a><a class="page-link" href="/MLKyoto/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Gaussian Processes 1 - Application</h1><p class="page-description">We look at how to use GP to learn non-linefar partial differential equations</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-08-27T00:00:00-05:00" itemprop="datePublished">
+        Aug 27, 2020
+      </time>• 
+          <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span class="p-author h-card" itemprop="name">John J. Molina</span></span>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      2 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/MLKyoto/categories/#Gaussian Processes">Gaussian Processes</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/johnjmolina/MLKyoto/tree/master/_notebooks/2020-08-27-Gaussian-Processes-Applications-Hidden-Physics-Models.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/MLKyoto/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/johnjmolina/MLKyoto/master?filepath=_notebooks%2F2020-08-27-Gaussian-Processes-Applications-Hidden-Physics-Models.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/MLKyoto/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/johnjmolina/MLKyoto/blob/master/_notebooks/2020-08-27-Gaussian-Processes-Applications-Hidden-Physics-Models.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/MLKyoto/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#Preliminaries">Preliminaries </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Solving-nonlinear-ODEs:-Exponential-time-difference-methods">Solving nonlinear ODEs: Exponential time-difference methods </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#ETD-RK">ETD-RK </a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul><script type="text/x-mathjax-config"> MathJax.Hub.Config({ TeX: { equationNumbers: { autoNumber: "all" } } }); </script>
+<script type="text/x-mathjax-config">
+   MathJax.Hub.Config({
+     tex2jax: {
+       inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+       processEscapes: true
+     }
+   });
+</script>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-08-27-Gaussian-Processes-Applications-Hidden-Physics-Models.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We reproduce a recent paper by Raissi and Karniadakis:</p>
+<p><a href="https://doi.org/10.1016/j.jcp.2017.11.039">Hidden physics models: Machine learning of nonlinear partial differential equations</a><br>
+M. Raissi and G. E. Karniadakis, J. Comp. Phys. 357, 125 (2018)</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span>  <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span>    <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span>     <span class="k">as</span> <span class="nn">onp</span>
+<span class="kn">import</span> <span class="nn">pymc3</span>     <span class="k">as</span> <span class="nn">pm</span>
+<span class="kn">import</span> <span class="nn">theano</span>    <span class="k">as</span> <span class="nn">th</span>
+<span class="kn">import</span> <span class="nn">theano.tensor</span> <span class="k">as</span> <span class="nn">tt</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>    <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span>      <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.patheffects</span> <span class="k">as</span> <span class="nn">PathEffects</span>
+
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">optimize</span>
+<span class="kn">from</span> <span class="nn">jax</span>   <span class="kn">import</span> <span class="n">grad</span><span class="p">,</span> <span class="n">jit</span><span class="p">,</span> <span class="n">vmap</span><span class="p">,</span> <span class="n">jacfwd</span><span class="p">,</span> <span class="n">jacrev</span><span class="p">,</span> <span class="n">random</span>
+<span class="kn">from</span> <span class="nn">jax.numpy.lax_numpy</span> <span class="kn">import</span> <span class="n">_wraps</span>
+<span class="kn">from</span> <span class="nn">jax.config</span>    <span class="kn">import</span> <span class="n">config</span><span class="p">;</span> <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">"jax_enable_x64"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">functools</span>     <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span><span class="n">reduce</span>
+<span class="kn">from</span> <span class="nn">pymc3.gp.util</span> <span class="kn">import</span> <span class="n">plot_gp_dist</span>
+
+<span class="n">mpl</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">([</span><span class="s1">'seaborn-poster'</span><span class="p">,</span> <span class="s1">'seaborn-muted'</span><span class="p">])</span>
+
+<span class="c1">#betanalphas' colormap</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"#DCBCBC"</span><span class="p">,</span><span class="s2">"#C79999"</span><span class="p">,</span><span class="s2">"#B97C7C"</span><span class="p">,</span><span class="s2">"#A25050"</span><span class="p">,</span><span class="s2">"#8F2727"</span><span class="p">,</span> <span class="s2">"#7C0000"</span><span class="p">,</span><span class="s2">"#DCBCBC20"</span><span class="p">,</span> <span class="s2">"#8F272720"</span><span class="p">,</span><span class="s2">"#00000060"</span><span class="p">]</span>
+<span class="n">color</span>  <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">'light'</span><span class="p">,</span><span class="s1">'light_highlight'</span><span class="p">,</span><span class="s1">'mid'</span><span class="p">,</span><span class="s1">'mid_highlight'</span><span class="p">,</span><span class="s1">'dark'</span><span class="p">,</span><span class="s1">'dark_highlight'</span><span class="p">,</span><span class="s1">'light_trans'</span><span class="p">,</span><span class="s1">'dark_trans'</span><span class="p">,</span><span class="s1">'superfine'</span><span class="p">],</span><span class="n">colors</span><span class="p">)}</span>
+<span class="n">fancycolors</span> <span class="o">=</span> <span class="p">[</span><span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">to_hex</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">],[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mi">1</span><span class="p">],[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span>
+                                              <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
+                                              <span class="p">[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]]]</span>
+<span class="n">threecolors</span> <span class="o">=</span> <span class="p">[</span><span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">to_hex</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.775</span><span class="p">,</span> <span class="mf">0.375</span><span class="p">]]]</span>
+<span class="n">fourcolors</span>  <span class="o">=</span> <span class="p">[</span><span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">to_hex</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">],[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.65</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">],[</span><span class="mf">0.42</span><span class="p">,</span> <span class="mf">0.42</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">]]]</span>
+
+<span class="k">def</span> <span class="nf">addtxt</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">clr</span><span class="o">=</span><span class="s1">'k'</span><span class="p">,</span> <span class="n">bclr</span><span class="o">=</span><span class="s1">'w'</span><span class="p">,</span> <span class="n">rot</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">"""Add text to figure axis"""</span>
+    <span class="k">return</span> <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">clr</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">'left'</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="n">rot</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">,</span>
+                   <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span><span class="n">PathEffects</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="n">lw</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="n">bclr</span><span class="p">)],</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/opt/anaconda3/envs/ML/lib/python3.7/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
+  warnings.warn('No GPU/TPU found, falling back to CPU.')
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Preliminaries">
+<a class="anchor" href="#Preliminaries" aria-hidden="true"><span class="octicon octicon-link"></span></a>Preliminaries<a class="anchor-link" href="#Preliminaries"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Solving-nonlinear-ODEs:-Exponential-time-difference-methods">
+<a class="anchor" href="#Solving-nonlinear-ODEs:-Exponential-time-difference-methods" aria-hidden="true"><span class="octicon octicon-link"></span></a>Solving nonlinear ODEs: Exponential time-difference methods<a class="anchor-link" href="#Solving-nonlinear-ODEs:-Exponential-time-difference-methods"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Consider the following differential equation
+\begin{align}
+  \partial_{t}u &amp;= \mathcal{L}u + \mathcal{G}(u,t)\label{e:uLN}
+\end{align}
+where $\mathcal{L}$ represents a linear operator (with constant coefficients), which is easily solved
+for and does not depend on time, and $\mathcal{G}$ is a non-linear operator. With the following change
+of variables
+\begin{align*}
+  v &amp;= e^{-\mathcal{L} t} u \\
+  \partial_{t} v &amp;= e^{-\mathcal{L} t}\partial_{t} u - e^{-\mathcal{L}t}\mathcal{L}u
+\end{align*}
+Eq.~\eqref{e:uLN} becomes
+\begin{align*}
+  \partial_{t}v &amp;= e^{-\mathcal{L} t} \mathcal{G}(t, u)
+\end{align*}
+and it can be solved analytically to yield
+\begin{align}
+  v(t_n + h) &amp;= v(t_n) + \int_0^h \textrm{d}{\tau}e^{-\mathcal{L} \tau}
+  \mathcal{G}\left({t_n+\tau, e^{\mathcal{L}\tau}v(t_n + \tau)}\right) \notag\\
+  u(t_n + h) &amp;= e^{h\mathcal{L}}\Big[{u(t_n) + \int_0^h \textrm{d}{\tau}
+    e^{-\mathcal{L}\tau} \mathcal{G}\big({t_n+\tau, u(t_n + \tau)}\big)}\Big]\label{e:un_int}
+\end{align}
+The problem, then, is how to treat the integral appearing on the
+right-hand side of the equation. For what follows, it will be useful
+to introduce the $\varphi_n$ functions, which can be defined in integral,
+series, or recursion form as (missing reference)
+\begin{align}
+  \varphi_n(z) &amp;= \begin{cases} e^{z} &amp; n = 0\\
+  \frac{1}{\left({n-1}\right)!}\int_0^1\textrm{d}{s} e^{z(1-s)}
+  s^{n-1}&amp; n &gt; 0\end{cases} \label{e:phin_int}\\
+  \varphi_n(z) &amp;= \sum_{k=0}^{\infty} \frac{z^k}{\left({k +
+      n}\right)!} \label{e:phin_sum} \\
+  \varphi_n(z) &amp;= \frac{\varphi_{n-1}(z) - \frac{1}{\left({n-1}\right)!}}{z}, \qquad
+  \varphi_0(z) = e^{z}\label{e:phin_rec}
+\end{align}</p>
+<p>The first four $\varphi$ functions are given by
+\begin{align*}
+  \varphi_0(z) &amp;= e^{z} &amp;  \varphi_2(z) &amp;= \frac{e^z - 1 - z}{z^2}\
+\varphi_1(z) &amp;= \frac{e^z - 1}{z}<br>
+   &amp; \varphi_3(z) &amp;=\frac{e^z - 1 -z</p>
+
+<pre><code>- \frac{1}{2}z^2}{z^3}
+</code></pre>
+<p>\end{align<em>}
+for $z$ a complex scalar. In the case of a (non-diagonal) matrix
+operator $\Lambda$, the $\varphi$ functions would become
+\begin{align</em>}
+  \varphi_0(\Lambda) &amp;= e^{\Lambda} &amp; \varphi_2(\Lambda) &amp;=
+  \Lambda^{-2}\left({e^{\Lambda} - I - \Lambda}\right) \
+  \varphi_1(\Lambda) &amp;= \Lambda^{-1}\left({e^{\Lambda} - 1}\right) &amp;
+  \varphi_3(\Lambda) &amp;= \Lambda^{-3}\bigg[{e^{\Lambda} - I - \Lambda - \frac{1}{2}\Lambda^{2}}\bigg]
+\end{align*}</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="ETD-RK">
+<a class="anchor" href="#ETD-RK" aria-hidden="true"><span class="octicon octicon-link"></span></a>ETD-RK<a class="anchor-link" href="#ETD-RK"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p></p>
+<ol class="bibliography"></ol>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="johnjmolina/MLKyoto"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/MLKyoto/gaussian%20processes/2020/08/27/Gaussian-Processes-Applications-Hidden-Physics-Models.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/MLKyoto/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/MLKyoto/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/MLKyoto/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Data Analysis and Machine Learning Blog from Kyoto</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/johnjmolina" title="johnjmolina"><svg class="svg-icon grey"><use xlink:href="/MLKyoto/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/molinajohnj" title="molinajohnj"><svg class="svg-icon grey"><use xlink:href="/MLKyoto/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
