@@ -264,32 +264,29 @@ M. Raissi and G. E. Karniadakis, J. Comp. Phys. 357, 125 (2018)</p>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Consider the following differential equation
+<p>Consider the following differential equation</p>
 \begin{align}
   \partial_{t}u &amp;= \mathcal{L}u + \mathcal{G}(u,t)\label{e:uLN}
-\end{align}
-where $\mathcal{L}$ represents a linear operator (with constant coefficients), which is easily solved
+\end{align}<p>where $\mathcal{L}$ represents a linear operator (with constant coefficients), which is easily solved
 for and does not depend on time, and $\mathcal{G}$ is a non-linear operator. With the following change
-of variables
+of variables</p>
 \begin{align*}
   v &amp;= e^{-\mathcal{L} t} u \\
   \partial_{t} v &amp;= e^{-\mathcal{L} t}\partial_{t} u - e^{-\mathcal{L}t}\mathcal{L}u
-\end{align*}
-Eq.~\eqref{e:uLN} becomes
+\end{align*}<p>Eq.\eqref{e:uLN} becomes
 \begin{align*}
   \partial_{t}v &amp;= e^{-\mathcal{L} t} \mathcal{G}(t, u)
-\end{align*}
-and it can be solved analytically to yield
+\end{align*}</p>
+<p>and it can be solved analytically to yield</p>
 \begin{align}
   v(t_n + h) &amp;= v(t_n) + \int_0^h \textrm{d}{\tau}e^{-\mathcal{L} \tau}
   \mathcal{G}\left({t_n+\tau, e^{\mathcal{L}\tau}v(t_n + \tau)}\right) \notag\\
   u(t_n + h) &amp;= e^{h\mathcal{L}}\Big[{u(t_n) + \int_0^h \textrm{d}{\tau}
     e^{-\mathcal{L}\tau} \mathcal{G}\big({t_n+\tau, u(t_n + \tau)}\big)}\Big]\label{e:un_int}
-\end{align}
-The problem, then, is how to treat the integral appearing on the
+\end{align}<p>The problem, then, is how to treat the integral appearing on the
 right-hand side of the equation. For what follows, it will be useful
 to introduce the $\varphi_n$ functions, which can be defined in integral,
-series, or recursion form as (missing reference)
+series, or recursion form as (missing reference)</p>
 \begin{align}
   \varphi_n(z) &amp;= \begin{cases} e^{z} &amp; n = 0\\
   \frac{1}{\left({n-1}\right)!}\int_0^1\textrm{d}{s} e^{z(1-s)}
@@ -298,25 +295,20 @@ series, or recursion form as (missing reference)
       n}\right)!} \label{e:phin_sum} \\
   \varphi_n(z) &amp;= \frac{\varphi_{n-1}(z) - \frac{1}{\left({n-1}\right)!}}{z}, \qquad
   \varphi_0(z) = e^{z}\label{e:phin_rec}
-\end{align}</p>
-<p>The first four $\varphi$ functions are given by
+\end{align}<p>The first four $\varphi$ functions are given by</p>
 \begin{align*}
-  \varphi_0(z) &amp;= e^{z} &amp;  \varphi_2(z) &amp;= \frac{e^z - 1 - z}{z^2}\
-\varphi_1(z) &amp;= \frac{e^z - 1}{z}<br>
-   &amp; \varphi_3(z) &amp;=\frac{e^z - 1 -z</p>
-
-<pre><code>- \frac{1}{2}z^2}{z^3}
-</code></pre>
-<p>\end{align<em>}
-for $z$ a complex scalar. In the case of a (non-diagonal) matrix
-operator $\Lambda$, the $\varphi$ functions would become
-\begin{align</em>}
+  \varphi_0(z) &amp;= e^{z} &amp;  \varphi_2(z) &amp;= \frac{e^z - 1 - z}{z^2}\\
+\varphi_1(z) &amp;= \frac{e^z - 1}{z}  
+   &amp; \varphi_3(z) &amp;=\frac{e^z - 1 -z
+    - \frac{1}{2}z^2}{z^3}
+\end{align*}<p>for $z$ a complex scalar. In the case of a (non-diagonal) matrix
+operator $\Lambda$, the $\varphi$ functions would become</p>
+\begin{align*}
   \varphi_0(\Lambda) &amp;= e^{\Lambda} &amp; \varphi_2(\Lambda) &amp;=
-  \Lambda^{-2}\left({e^{\Lambda} - I - \Lambda}\right) \
+  \Lambda^{-2}\left({e^{\Lambda} - I - \Lambda}\right) \\
   \varphi_1(\Lambda) &amp;= \Lambda^{-1}\left({e^{\Lambda} - 1}\right) &amp;
   \varphi_3(\Lambda) &amp;= \Lambda^{-3}\bigg[{e^{\Lambda} - I - \Lambda - \frac{1}{2}\Lambda^{2}}\bigg]
-\end{align*}</p>
-
+\end{align*}
 </div>
 </div>
 </div>
