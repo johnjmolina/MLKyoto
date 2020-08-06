@@ -90,6 +90,7 @@ plugins:
   - jekyll-remote-theme
   - jekyll-paginate
   - jekyll-sitemap
+  - jekyll-scholar
   - jemoji
 
 # See https://jekyllrb.com/docs/pagination/
