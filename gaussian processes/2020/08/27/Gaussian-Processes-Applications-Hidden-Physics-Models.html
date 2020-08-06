@@ -95,7 +95,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      6 min read
+      8 min read
     
 </span></p>
 
@@ -142,6 +142,7 @@ window.onload = wrap_img;
 <ul>
 <li class="toc-entry toc-h4"><a href="#ETDRK1">ETDRK1 </a></li>
 <li class="toc-entry toc-h4"><a href="#ETDRK2">ETDRK2 </a></li>
+<li class="toc-entry toc-h4"><a href="#ETDRK3">ETDRK3 </a></li>
 </ul>
 </li>
 </ul>
@@ -496,6 +497,80 @@ order one.</p>
   U_{n2}) \\
   u_{n+1} &amp;= \varphi_0 u_n + h\big[{\left({\varphi_1 - \varphi_2}\right) G_{n1} + \varphi_2G_{n2}}\big]
 \end{align*}<p>however, in this case the method is no longer guaranteed to be second order.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="ETDRK3">
+<a class="anchor" href="#ETDRK3" aria-hidden="true"><span class="octicon octicon-link"></span></a>ETDRK3<a class="anchor-link" href="#ETDRK3"> </a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A third order method, with three internal sub-stages, is given by</p>
+\begin{align}
+  \begin{array}{c|ccc}
+    0 &amp; &amp; &amp; \\
+    c_2 &amp; c_2 \varphi_{1,2} &amp; &amp; \\
+    \frac{2}{3} &amp; \frac{2}{3}\varphi_{1,3} - \frac{4}{9c_2}
+    \varphi_{2,3} &amp; \frac{4}{9 c_2} \varphi_{2,3} &amp; \\
+    \hline
+    &amp; \varphi_1 - \frac{3}{2}\varphi_2 &amp; 0 &amp; \frac{3}{2}\varphi_2
+  \end{array}\qquad
+  \begin{array}{c|ccc}
+    0 &amp; &amp; &amp; \\
+    \frac{1}{3} &amp; \frac{1}{3} \varphi_{1,2} &amp; &amp; \\
+    \frac{2}{3} &amp; \frac{2}{3}\varphi_{1,3} - \frac{4}{3}
+    \varphi_{2,3} &amp; \frac{4}{3} \varphi_{2
+    ,3} &amp; \\
+    \hline
+    &amp; \varphi_1 - \frac{3}{2}\varphi_2 &amp; 0 &amp; \frac{3}{2}\varphi_2
+  \end{array}
+  \label{e:etdrk3}
+\end{align}<p>such that</p>
+\begin{align*}
+  U_{n1} &amp;= u_n &amp; G_{n1} &amp;= \mathcal{G}(t_n, U_{n1}) \\
+  U_{n2} &amp;= \varphi_{0}\left({h/3\mathcal{L}}\right)u_n + h\bigg[{
+  \frac{1}{3}\varphi_1\left({h/3\mathcal{L}}\right)}\bigg] &amp; G_{n2} &amp;= \mathcal{G}(t_n + h/3, U_{n2}) \\
+  U_{n3} &amp;= \varphi_{0}\left({2h/3 \mathcal{L}}\right) u_n +
+  h\bigg[{\bigg({\frac{2}{3}\varphi_{1}\left({2h/3\mathcal{L}}\right) -
+      \frac{4}{3} \varphi_{2}\left({2h/3\mathcal{L}}\right)}G_{n1}\bigg)}\bigg] &amp; G_{n3} &amp;=
+  \mathcal{G}\left({t_n + 2h/3, U_{n3}}\right) \\
+  &amp; \qquad\qquad\qquad\quad
+  +h\bigg[{\frac{4}{3}\varphi_{2}\left({2h/3\mathcal{L}}\right) G_{n2}}\bigg] &amp;&amp;\\
+  u_{n+1} &amp;= \varphi_0 u_n + h\bigg[{\bigg({\varphi_1 -
+      \frac{3}{2}\varphi_2}\bigg) G_{n1} + \frac{3}{2}\varphi_2 G_{n3}}\bigg]
+\end{align*}<p>The standard choice is to take $c_2 = 1/3$ and this method is order
+three (worst case $2.75$). It is referred to as the Heun method.</p>
+<p>Cox and Mathews proposed the following third-order method <a class="citation" href="#Cox2002">(Cox &amp; Matthews, 2002)</a></p>
+\begin{align}
+  \begin{array}{c|ccc}
+    0 &amp; &amp; &amp; \\
+    \frac{1}{2} &amp; \frac{1}{2}\varphi_{1,2} &amp; &amp; \\
+    1 &amp; -\varphi_{1,3} &amp; 2\varphi_{1,3} &amp; \\
+    \hline
+    &amp; 4\varphi_{3} - 3\varphi_{2} + \varphi_{1} &amp; - 8 \varphi_{3} +
+    4\varphi_{2}&amp;  4\varphi_{3} - \varphi_{2}
+  \end{array}
+  \label{e:etdrk3Cox}
+\end{align}<p>such that</p>
+\begin{align*}
+  U_{n1} &amp;= u_n &amp; G_{n1} &amp;= \mathcal{G}(t_n, U_{n1}) \\
+  U_{n2} &amp;= \varphi_0(h/2\mathcal{L}) u_n +
+  h\bigg[{\frac{1}{2}\varphi_{1}(h/2\mathcal{L})G_{n1} }\bigg]
+  &amp; G_{n2} &amp;= \mathcal{G}(t_n + h/2, U_{n2}) \\
+  U_{n3} &amp;= \varphi_0 u_n + h\bigg[{-\varphi_1G_{n1} +
+    2\varphi_1G_{n2}}\bigg] &amp; G_{n3} &amp;= \mathcal{G}(t_n + h, U_{n3})\\
+  u_{n+1} &amp;= \varphi_{0} u_n + h\bigg[{\left({4\varphi_3 - 3\varphi_2 +
+      \varphi_1}\right) G_{n1} + 4\left({-2\varphi_3 + \varphi_2}\right) G_{n2} +
+    \left({4\varphi_3 - \varphi_2}\right)G_{n3}}\bigg]
+\end{align*}<p>In the worst case, it reduces to order two.</p>
 
 </div>
 </div>
