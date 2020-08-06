@@ -95,7 +95,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      5 min read
+      6 min read
     
 </span></p>
 
@@ -138,7 +138,12 @@ window.onload = wrap_img;
 <ul>
 <li class="toc-entry toc-h2"><a href="#Solving-nonlinear-ODEs:-Exponential-time-difference-methods">Solving nonlinear ODEs: Exponential time-difference methods </a>
 <ul>
-<li class="toc-entry toc-h3"><a href="#ETD-RK">ETD-RK </a></li>
+<li class="toc-entry toc-h3"><a href="#ETD-RK">ETD-RK </a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#ETDRK1">ETDRK1 </a></li>
+<li class="toc-entry toc-h4"><a href="#ETDRK2">ETDRK2 </a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -381,6 +386,116 @@ notation
 \end{align}
 A detailed discussion of explicit ETDRK methods up to order four
 be found in Refs. <a class="citation" href="#Hochbruck2005a">(Hochbruck &amp; Ostermann, 2005; Cox &amp; Matthews, 2002)</a>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="ETDRK1">
+<a class="anchor" href="#ETDRK1" aria-hidden="true"><span class="octicon octicon-link"></span></a>ETDRK1<a class="anchor-link" href="#ETDRK1"> </a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For $s=1$, we obtain the exponential version of Euler's method</p>
+\begin{align}
+  \begin{array}{c|c}
+    0 &amp; \\
+    \hline
+    &amp; \varphi_1
+  \end{array}
+  \label{e:etdrk1}
+\end{align}<p>or</p>
+\begin{align*}
+  u_{n+1} &amp;= \varphi_0 u_n + h \varphi_1(h\mathcal{L}) \mathcal{G}(t_n, u_n) \\
+\end{align*}<p>Expanding the terms inside the
+parenthesis to first order in $h$, we obtain the following approximate
+integrator (equivalent to Euler's method)</p>
+\begin{align*}
+  u_{n+1} &amp;= e^{h\mathcal{L}}\big({u_n + \mathcal{L}^{-1}\left({1 - e^{-h\mathcal{L}}}\right)\mathcal{G}(t_n,
+    u_n)}\big) \\
+  &amp;\approx e^{h\mathcal{L}}\big({u_n + h \mathcal{G}(t_n, u_n)}\big)
+\end{align*}
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="ETDRK2">
+<a class="anchor" href="#ETDRK2" aria-hidden="true"><span class="octicon octicon-link"></span></a>ETDRK2<a class="anchor-link" href="#ETDRK2"> </a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For a second-order method we need at least two-internal
+stages (missing reference),</p>
+\begin{align}
+  \begin{array}{c|cc}
+    0 &amp; &amp; \\
+    c_2 &amp; c_2 \varphi_{1,2} &amp; \\
+    \hline
+      &amp; \varphi_{1} - \frac{1}{c_2}\varphi_{2} &amp; \frac{1}{c_2}\varphi_2
+  \end{array}\qquad
+  \begin{array}{c|cc}
+    0 &amp; &amp; \\
+    \frac{1}{2} &amp; \frac{1}{2}\varphi_{1,2} &amp; \\
+    \hline
+      &amp; \varphi_{1} - 2\varphi_{2} &amp; 2\varphi_2
+  \end{array}
+  \label{e:etdrk2}
+\end{align}<p>or</p>
+\begin{align*}
+  U_{n1} &amp;= u_n  &amp;G_{n1} &amp;= \mathcal{G}(t_n, U_{n1})\\
+  U_{n2} &amp;= \varphi_{0}\left({h/2\mathcal{L}}\right) u_n + h\bigg[{\frac{1}{2}\varphi_1\left({h/2 \mathcal{L}}\right) G_{n1}}\bigg] &amp;
+  G_{n2} &amp;= \mathcal{G}(t_n + h/2, U_{n2}) \\
+  u_{n+1} &amp;= \varphi_{0} u_n + h\big[{\left({\varphi_1 -
+      2\varphi_2}\right)G_{n1} + 2\varphi_2G_{n2}}\big]
+\end{align*}<p>Easing some of the restrictions, one can obtain an alternative
+one-parameter method,</p>
+\begin{align}
+  \begin{array}{c|cc}
+    0 &amp; &amp; \\
+    c_2 &amp; c_2\varphi_{1,2} &amp; \\
+    \hline
+    &amp; \big({1 - \frac{1}{2 c_2}}\big)\varphi_1 &amp; \frac{1}{2 c_2}\varphi_1
+  \end{array}\qquad
+  \begin{array}{c|cc}
+    0 &amp; &amp; \\
+    \frac{1}{2} &amp; \frac{1}{2}\varphi_{1,2} &amp; \\
+    \hline
+    &amp; 0 &amp; \varphi_1
+  \end{array}
+  \label{e:etdrk2b}
+\end{align}<p>such that</p>
+\begin{align*}
+  u_{n+1} &amp;= \varphi_0 u_n + h\varphi_1G_{n2}
+\end{align*}<p>Both methods (\ref{e:etdrk2} and \ref{e:etdrk2b}) are B-consistent of
+order one.</p>
+<p>Cox and Mathews have proposed to use $c_2 = 1$</p>
+\begin{align}
+  \begin{array}{c|cc}
+    0 &amp; &amp; \\
+    1 &amp; \varphi_{1,2} &amp; \\
+    \hline
+    &amp; \varphi_1 - \varphi_2 &amp; \varphi_2
+  \end{array}
+  \label{e:etdrk2Cox}
+\end{align}<p>such that</p>
+\begin{align*}
+  U_{n1} &amp;= u_n &amp; G_{n1} &amp;= \mathcal{G}(t_n, U_{n1}) \\
+  U_{n2} &amp;= \varphi_{0}u_n + h\varphi_1G_{n1} &amp; G_{n2} &amp;= \mathcal{G}(t_n + h,
+  U_{n2}) \\
+  u_{n+1} &amp;= \varphi_0 u_n + h\big[{\left({\varphi_1 - \varphi_2}\right) G_{n1} + \varphi_2G_{n2}}\big]
+\end{align*}<p>however, in this case the method is no longer guaranteed to be second order.</p>
 
 </div>
 </div>
