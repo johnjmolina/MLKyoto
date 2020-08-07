@@ -95,7 +95,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      8 min read
+      15 min read
     
 </span></p>
 
@@ -134,15 +134,17 @@ window.onload = wrap_img;
 
   <div class="post-content e-content" itemprop="articleBody">
     <ul class="section-nav">
-<li class="toc-entry toc-h1"><a href="#Preliminaries">Preliminaries </a>
+<li class="toc-entry toc-h1"><a href="#Appendix">Appendix </a>
 <ul>
 <li class="toc-entry toc-h2"><a href="#Solving-nonlinear-ODEs:-Exponential-time-difference-methods">Solving nonlinear ODEs: Exponential time-difference methods </a>
 <ul>
+<li class="toc-entry toc-h3"><a href="#Evaluating-$\varphi$">Evaluating $\varphi$ </a></li>
 <li class="toc-entry toc-h3"><a href="#ETD-RK">ETD-RK </a>
 <ul>
 <li class="toc-entry toc-h4"><a href="#ETDRK1">ETDRK1 </a></li>
 <li class="toc-entry toc-h4"><a href="#ETDRK2">ETDRK2 </a></li>
 <li class="toc-entry toc-h4"><a href="#ETDRK3">ETDRK3 </a></li>
+<li class="toc-entry toc-h4"><a href="#ETDRK-4">ETDRK 4 </a></li>
 </ul>
 </li>
 </ul>
@@ -193,12 +195,9 @@ M. Raissi and G. E. Karniadakis, J. Comp. Phys. 357, 125 (2018)</p>
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span>  <span class="nn">np</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span>    <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span>     <span class="k">as</span> <span class="nn">onp</span>
-<span class="kn">import</span> <span class="nn">pymc3</span>     <span class="k">as</span> <span class="nn">pm</span>
-<span class="kn">import</span> <span class="nn">theano</span>    <span class="k">as</span> <span class="nn">th</span>
-<span class="kn">import</span> <span class="nn">theano.tensor</span> <span class="k">as</span> <span class="nn">tt</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span>    <span class="k">as</span> <span class="nn">mpl</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span>      <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">matplotlib.patheffects</span> <span class="k">as</span> <span class="nn">PathEffects</span>
@@ -208,7 +207,7 @@ M. Raissi and G. E. Karniadakis, J. Comp. Phys. 357, 125 (2018)</p>
 <span class="kn">from</span> <span class="nn">jax.numpy.lax_numpy</span> <span class="kn">import</span> <span class="n">_wraps</span>
 <span class="kn">from</span> <span class="nn">jax.config</span>    <span class="kn">import</span> <span class="n">config</span><span class="p">;</span> <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">"jax_enable_x64"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">functools</span>     <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span><span class="n">reduce</span>
-<span class="kn">from</span> <span class="nn">pymc3.gp.util</span> <span class="kn">import</span> <span class="n">plot_gp_dist</span>
+<span class="kn">from</span> <span class="nn">mpmath</span>        <span class="kn">import</span> <span class="n">mp</span>
 
 <span class="n">mpl</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">([</span><span class="s1">'seaborn-poster'</span><span class="p">,</span> <span class="s1">'seaborn-muted'</span><span class="p">])</span>
 
@@ -231,29 +230,14 @@ M. Raissi and G. E. Karniadakis, J. Comp. Phys. 357, 125 (2018)</p>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>/opt/anaconda3/envs/ML/lib/python3.7/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
-  warnings.warn('No GPU/TPU found, falling back to CPU.')
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
 </div>
     
 
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Preliminaries">
-<a class="anchor" href="#Preliminaries" aria-hidden="true"><span class="octicon octicon-link"></span></a>Preliminaries<a class="anchor-link" href="#Preliminaries"> </a>
+<h1 id="Appendix">
+<a class="anchor" href="#Appendix" aria-hidden="true"><span class="octicon octicon-link"></span></a>Appendix<a class="anchor-link" href="#Appendix"> </a>
 </h1>
 </div>
 </div>
@@ -318,6 +302,375 @@ operator $\Lambda$, the $\varphi$ functions would become</p>
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Evaluating-$\varphi$">
+<a class="anchor" href="#Evaluating-%24%5Cvarphi%24" aria-hidden="true"><span class="octicon octicon-link"></span></a>Evaluating $\varphi$<a class="anchor-link" href="#Evaluating-%24%5Cvarphi%24"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Unfortunately, these $\varphi_n(z)$ suffer from a catastrophic error cancellation for $\lvert z \rvert \lesssim 1$ (small eigenvalues), which gets progressively worse for higher-order functions (i.e., as $n$ increases).</p>
+<p>Below we evaluate $\varphi_n(z)$ ($n=1,2,3$) for $10^{-13} &lt; z &lt; 10^{0}$, using the (naive) direct calculation, a Taylor expansion for small argument values, and a high-precision calculation through the mpmath library, which allows for arbitrary precision. The Taylor expansion functions are adapted from the <a href="https://www.math.ualberta.ca/~bowman/phi.h">Phi.h</a> header library written by <a href="https://www.math.ualberta.ca/~bowman">John Bowman</a>. Note that this requires going up to $6$, $8$, $18$-order for $\varphi_1$, $\varphi_2$, $\varphi_3$, respectively.</p>
+<p>For $\varphi_1$ using the 'expm1' function instead of directly evaluating $\exp{z} - 1$ will give the correct results. However, there are no easy fixes for the higher order functions.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">phin_naive</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">ans</span><span class="p">,</span><span class="n">nonzero</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="n">z</span> <span class="o">!=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">])</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">/</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">onp</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">nonzero</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">])</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">onp</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">nonzero</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">])</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">onp</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">nonzero</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">6</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">return</span> <span class="n">ans</span>
+
+<span class="k">def</span> <span class="nf">phin_direct</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">ans</span><span class="p">,</span><span class="n">nonzero</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="n">z</span> <span class="o">!=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">])</span><span class="o">/</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">onp</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">nonzero</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">])</span> <span class="o">-</span> <span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">onp</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">nonzero</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">])</span> <span class="o">-</span> <span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">onp</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">nonzero</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">6</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">return</span> <span class="n">ans</span>
+
+<span class="k">def</span> <span class="nf">phin_taylor</span><span class="p">(</span><span class="n">_z</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">Coeff</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">2.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">6.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">24.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">120.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">/</span><span class="mf">720.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">5040.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">40320.0</span><span class="p">,</span> 
+                       <span class="mf">1.0</span><span class="o">/</span><span class="mf">362880.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">3628800.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">39916800.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">479001600.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">6227020800.0</span><span class="p">,</span>
+                       <span class="mf">1.0</span><span class="o">/</span><span class="mf">87178291200.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">1307674368000.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">20922789888000.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">355687428096000.0</span><span class="p">,</span>
+                       <span class="mf">1.0</span><span class="o">/</span><span class="mf">6402373705728000.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">121645100408832000.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">2432902008176640000.0</span><span class="p">,</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">51090942171709440000.0</span><span class="p">,</span>
+                       <span class="mf">1.0</span><span class="o">/</span><span class="mf">1124000727777607680000.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">longdouble</span><span class="p">)</span>
+    <span class="n">z</span>   <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_z</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">longdouble</span><span class="p">)</span>
+    <span class="n">ans</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">nonzero</span> <span class="o">=</span> <span class="n">z</span> <span class="o">!=</span> <span class="mi">0</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">])</span><span class="o">/</span><span class="n">z</span><span class="p">[</span><span class="n">nonzero</span><span class="p">]</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">onp</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">nonzero</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">z2</span> <span class="o">=</span> <span class="n">z</span><span class="o">*</span><span class="n">z</span>
+        <span class="n">z3</span> <span class="o">=</span> <span class="n">z2</span><span class="o">*</span><span class="n">z</span>
+        <span class="n">z5</span> <span class="o">=</span> <span class="n">z2</span><span class="o">*</span><span class="n">z3</span>
+        <span class="n">z7</span> <span class="o">=</span> <span class="n">z5</span><span class="o">*</span><span class="n">z2</span>
+        <span class="n">z8</span> <span class="o">=</span> <span class="n">z7</span><span class="o">*</span><span class="n">z</span>
+        <span class="n">small</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.1</span>
+        <span class="n">large</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.0</span>
+        <span class="n">medium</span><span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">small</span><span class="p">,</span> <span class="n">large</span><span class="p">))</span>
+
+        <span class="n">ans</span><span class="p">[</span><span class="n">large</span><span class="p">]</span>  <span class="o">=</span> <span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">large</span><span class="p">])</span><span class="o">-</span><span class="n">z</span><span class="p">[</span><span class="n">large</span><span class="p">])</span><span class="o">/</span><span class="n">z2</span><span class="p">[</span><span class="n">large</span><span class="p">]</span>
+
+        <span class="n">ans</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span> <span class="o">=</span> <span class="n">Coeff</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">z</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">z2</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">z3</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> \
+        <span class="n">z2</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z2</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="n">z5</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="n">z3</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z3</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> \
+        <span class="n">z7</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">+</span> <span class="n">z8</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">+</span> <span class="n">z8</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">+</span> <span class="n">z5</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z5</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">+</span> \
+        <span class="n">z8</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z3</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="o">+</span> <span class="n">z7</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z5</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span> <span class="o">+</span> <span class="n">z8</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z5</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="o">+</span> \
+        <span class="n">z7</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z7</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span> <span class="o">+</span> <span class="n">z8</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z7</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span> <span class="o">+</span> <span class="n">z8</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z8</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">17</span><span class="p">]</span>
+
+        <span class="n">ans</span><span class="p">[</span><span class="n">small</span><span class="p">]</span> <span class="o">=</span> <span class="n">Coeff</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">z</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">z2</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">z3</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="n">z2</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">z2</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> \
+        <span class="n">z5</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="n">z3</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">z3</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="n">z7</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">+</span> <span class="n">z8</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">z2</span> <span class="o">=</span> <span class="n">z</span><span class="o">*</span><span class="n">z</span>
+        <span class="n">z3</span> <span class="o">=</span> <span class="n">z2</span><span class="o">*</span><span class="n">z</span>
+        <span class="n">z5</span> <span class="o">=</span> <span class="n">z2</span><span class="o">*</span><span class="n">z3</span>
+        <span class="n">z7</span> <span class="o">=</span> <span class="n">z5</span><span class="o">*</span><span class="n">z2</span>
+        <span class="n">z8</span> <span class="o">=</span> <span class="n">z7</span><span class="o">*</span><span class="n">z</span>
+        <span class="n">z16</span><span class="o">=</span> <span class="n">z8</span><span class="o">*</span><span class="n">z8</span>
+        <span class="n">small</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.1</span>
+        <span class="n">large</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.6</span>
+        <span class="n">medium</span><span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">small</span><span class="p">,</span> <span class="n">large</span><span class="p">))</span>
+        
+        <span class="n">ans</span><span class="p">[</span><span class="n">large</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">onp</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">large</span><span class="p">])</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">z2</span><span class="p">[</span><span class="n">large</span><span class="p">]</span><span class="o">-</span><span class="n">z</span><span class="p">[</span><span class="n">large</span><span class="p">])</span><span class="o">/</span><span class="n">z3</span><span class="p">[</span><span class="n">large</span><span class="p">]</span>
+
+        <span class="n">ans</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span> <span class="o">=</span> <span class="n">Coeff</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">z</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">z2</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="n">z3</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> \
+        <span class="n">z2</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z2</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="n">z5</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="n">z3</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z3</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">+</span> \
+        <span class="n">z7</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">+</span> <span class="n">z8</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">+</span> <span class="n">z8</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">+</span> <span class="n">z5</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z5</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="o">+</span> \
+        <span class="n">z8</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z3</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span> <span class="o">+</span> <span class="n">z7</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z5</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="o">+</span> <span class="n">z8</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z5</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span> <span class="o">+</span> \
+        <span class="n">z7</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z7</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span> <span class="o">+</span> <span class="n">z8</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z7</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">17</span><span class="p">]</span> <span class="o">+</span> <span class="n">z16</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">18</span><span class="p">]</span> <span class="o">+</span> \
+        <span class="n">z16</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">19</span><span class="p">]</span> <span class="o">+</span> <span class="n">z16</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">z2</span><span class="p">[</span><span class="n">medium</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span>
+        
+        <span class="n">ans</span><span class="p">[</span><span class="n">small</span><span class="p">]</span> <span class="o">=</span> <span class="n">Coeff</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">z</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">z2</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="n">z3</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> \
+        <span class="n">z2</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">z2</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="n">z5</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="n">z3</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">z3</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">+</span> \
+        <span class="n">z7</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">+</span> <span class="n">z8</span><span class="p">[</span><span class="n">small</span><span class="p">]</span><span class="o">*</span><span class="n">Coeff</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span>
+        
+    <span class="k">return</span> <span class="n">ans</span>
+
+<span class="n">mp</span><span class="o">.</span><span class="n">dps</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="k">def</span> <span class="nf">phin_exact</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">phi1_exact</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">z</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="n">z</span><span class="p">))</span><span class="o">/</span><span class="n">z</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">mp</span><span class="o">.</span><span class="n">mpf</span><span class="p">(</span><span class="s1">'1'</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">phi2_exact</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">z</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">mp</span><span class="o">.</span><span class="n">fdiv</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">fsub</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="n">z</span><span class="p">),</span> <span class="n">mp</span><span class="o">.</span><span class="n">fmul</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">z</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">mp</span><span class="o">.</span><span class="n">mpf</span><span class="p">(</span><span class="s1">'1'</span><span class="p">)</span><span class="o">/</span><span class="n">mp</span><span class="o">.</span><span class="n">mpf</span><span class="p">(</span><span class="s1">'2'</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">phi3_exact</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">z</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">mp</span><span class="o">.</span><span class="n">fdiv</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">fsub</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">fsub</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="n">z</span><span class="p">),</span> <span class="n">mp</span><span class="o">.</span><span class="n">fmul</span><span class="p">(</span><span class="s1">'0.5'</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">fmul</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">z</span><span class="p">))),</span><span class="n">mp</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="s1">'3'</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">mp</span><span class="o">.</span><span class="n">mpf</span><span class="p">(</span><span class="s1">'1'</span><span class="p">)</span><span class="o">/</span><span class="n">mp</span><span class="o">.</span><span class="n">mpf</span><span class="p">(</span><span class="s1">'6'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">frompyfunc</span><span class="p">(</span><span class="n">phi1_exact</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)(</span><span class="n">z</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">frompyfunc</span><span class="p">(</span><span class="n">phi2_exact</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)(</span><span class="n">z</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">frompyfunc</span><span class="p">(</span><span class="n">phi3_exact</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)(</span><span class="n">z</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ans</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">onp</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+<span class="n">zvals</span>    <span class="o">=</span> <span class="n">onp</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">];</span> <span class="n">zvals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">zexact</span>   <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">matrix</span><span class="p">([</span><span class="n">mp</span><span class="o">.</span><span class="n">mpf</span><span class="p">(</span><span class="s1">'0'</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="n">mp</span><span class="o">.</span><span class="n">mpf</span><span class="p">(</span><span class="sa">f</span><span class="s1">'1e-</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">14</span><span class="p">)])</span>
+<span class="k">def</span> <span class="nf">get_phivals</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">phivals</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'z'</span><span class="p">:</span><span class="n">zvals</span><span class="p">})</span>
+    <span class="k">for</span> <span class="n">f</span><span class="p">,</span><span class="n">key</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">phin_naive</span><span class="p">,</span> <span class="n">phin_direct</span><span class="p">,</span> <span class="n">phin_taylor</span><span class="p">,</span> <span class="n">phin_exact</span><span class="p">],</span> <span class="p">[</span><span class="s1">'naive'</span><span class="p">,</span> <span class="s1">'direct'</span><span class="p">,</span> <span class="s1">'taylor'</span><span class="p">,</span> <span class="s1">'exact'</span><span class="p">]):</span>
+        <span class="n">phivals</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">zvals</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">phivals</span>
+<span class="n">phivals</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">):</span><span class="n">get_phivals</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]}</span>
+<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">phivals</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">phis</span> <span class="o">=</span> <span class="n">phivals</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">onp</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">phis</span><span class="p">[</span><span class="s1">'taylor'</span><span class="p">],</span> <span class="n">phis</span><span class="p">[</span><span class="s1">'exact'</span><span class="p">]))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1 True
+2 True
+3 True
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/opt/anaconda3/envs/ML/lib/python3.7/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
+  warnings.warn('No GPU/TPU found, falling back to CPU.')
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.precision"</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+<span class="n">phivals</span><span class="p">[</span><span class="s1">'3'</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>z</th>
+      <th>naive</th>
+      <th>direct</th>
+      <th>taylor</th>
+      <th>exact</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0000000000000</td>
+      <td>2.1828182845904509e-01</td>
+      <td>2.1828182845904531e-01</td>
+      <td>0.2182818284590452</td>
+      <td>0.2182818284590452</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.1000000000000</td>
+      <td>1.7091807564770589e-01</td>
+      <td>1.7091807564762262e-01</td>
+      <td>0.1709180756476248</td>
+      <td>0.1709180756476248</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0100000000000</td>
+      <td>1.6708416794891692e-01</td>
+      <td>1.6708416805820450e-01</td>
+      <td>0.1670841680575421</td>
+      <td>0.1670841680575422</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0010000000000</td>
+      <td>1.6670838457651979e-01</td>
+      <td>1.6670834164211376e-01</td>
+      <td>0.1667083416680557</td>
+      <td>0.1667083416680558</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.0001000000000</td>
+      <td>1.6671409273916138e-01</td>
+      <td>1.6667083307247921e-01</td>
+      <td>0.1666708334166681</td>
+      <td>0.1666708334166681</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.0000100000000</td>
+      <td>6.9648240748212645e-02</td>
+      <td>1.6666739452672016e-01</td>
+      <td>0.1666670833341667</td>
+      <td>0.1666670833341667</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.0000010000000</td>
+      <td>-3.7816301523900364e+01</td>
+      <td>1.6656165511378748e-01</td>
+      <td>0.1666667083333417</td>
+      <td>0.1666667083333417</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>0.0000001000000</td>
+      <td>-5.6631969441242662e+04</td>
+      <td>1.6372125723179085e-01</td>
+      <td>0.1666666708333334</td>
+      <td>0.1666666708333334</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>0.0000000100000</td>
+      <td>-1.1077470991844709e+08</td>
+      <td>8.4311917120149293e-01</td>
+      <td>0.1666666670833333</td>
+      <td>0.1666666670833333</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>0.0000000010000</td>
+      <td>8.2240370936808762e+10</td>
+      <td>7.4605640731664565e+01</td>
+      <td>0.1666666667083333</td>
+      <td>0.1666666667083333</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>0.0000000001000</td>
+      <td>8.2690370962658174e+12</td>
+      <td>-3.3898466555688628e+03</td>
+      <td>0.1666666666708333</td>
+      <td>0.1666666666708333</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>0.0000000000100</td>
+      <td>8.2735371059593412e+14</td>
+      <td>8.0620684307670861e+05</td>
+      <td>0.1666666666670833</td>
+      <td>0.1666666666670833</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>0.0000000000010</td>
+      <td>8.8900581841031741e+19</td>
+      <td>2.4217939769697081e+07</td>
+      <td>0.1666666666667083</td>
+      <td>0.1666666666667083</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>0.0000000000001</td>
+      <td>-7.9927783740914396e+22</td>
+      <td>-1.7773045196693933e+09</td>
+      <td>0.1666666666666708</td>
+      <td>0.1666666666666708</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>0.0000000000000</td>
+      <td>1.6666666666666666e-01</td>
+      <td>1.6666666666666666e-01</td>
+      <td>0.1666666666666667</td>
+      <td>0.1666666666666667</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -578,12 +931,144 @@ three (worst case $2.75$). It is referred to as the Heun method.</p>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="ETDRK-4">
+<a class="anchor" href="#ETDRK-4" aria-hidden="true"><span class="octicon octicon-link"></span></a>ETDRK 4<a class="anchor-link" href="#ETDRK-4"> </a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A full fourth-order method requires $5$ internal stages, as was shown by Hochbruck and
+Ostermann <a class="citation" href="#Hochbruck2005">(Hochbruck &amp; Ostermann, 2005; Rothauge et al., 2016)</a>,</p>
+\begin{align}
+  &amp;
+  \begin{array}{c|ccccc}
+    0 &amp; &amp; &amp; &amp; &amp; \\
+    \frac{1}{2} &amp; \frac{1}{2}\varphi_{1,2} &amp; &amp; &amp; &amp; \\
+    \frac{1}{2} &amp; \frac{1}{2}\varphi_{1,3} - \varphi_{2,3} &amp;
+    \varphi_{2,3} &amp; &amp; &amp; \\
+    1 &amp; \varphi_{1,4} - 2\varphi_{2,4} &amp; \varphi_{2,4} &amp; \varphi_{2,4}
+    &amp; &amp; \\
+    \frac{1}{2} &amp; \frac{1}{2}\varphi_{1,5} - \frac{1}{4}\varphi_{2,5}
+    - a_{5,2}  &amp; a_{5,2} &amp; a_{5,2} &amp; \frac{1}{4}\varphi_{2,5} -
+    a_{5,2} &amp; \\
+    \hline
+    &amp; \varphi_1 - 3\varphi_2 + 4\varphi_3 &amp; 0 &amp; 0 &amp; -\varphi_2 +
+    4\varphi_3 &amp; 4\varphi_2- 8\varphi_3
+  \end{array}\label{e:etdrk4}\\
+  a_{5,2} &amp;= \frac{1}{2}\varphi_{2,5} - \varphi_{3,4} +
+  \frac{1}{4}\varphi_{2,4} - \frac{1}{2}\varphi_{3,5}\notag\\
+  &amp;=\frac{1}{2}\varphi_2(h/2\mathcal{L}) - \varphi_3(h\mathcal{L}) +
+  \frac{1}{4}\varphi_2(h\mathcal{L}) - \frac{1}{2}\varphi_3(h/2\mathcal{L})\notag
+\end{align}<p>which leads to the following update scheme</p>
+\begin{align*}
+  U_{n1} &amp;= u_n &amp; G_{n1} &amp;= \mathcal{G}(t_n, u_n) \\
+  U_{n2} &amp;= \varphi_0(h/2\mathcal{L})u_n +
+  h\bigg[{\frac{1}{2}\varphi_{1}(h/2\mathcal{L}) G_{n1}}\bigg] &amp; G_{n2}&amp;=
+  \mathcal{G}(t_n + h/2, U_{n2}) \\
+  U_{n3} &amp;= \varphi_0(h/2\mathcal{L})u_n +
+  h\bigg[{\bigg({\frac{1}{2}\varphi_1(h/2\mathcal{L}) -
+      \varphi_2(h/2\mathcal{L})}\bigg) G_{n1} + \varphi_2(h/2\mathcal{L})G_{n2}}\bigg] &amp;
+  G_{n3} &amp;= \mathcal{G}(t_n + h/2, U_{n3}) \\
+  U_{n4} &amp;= \varphi_0 u_n +
+  h\bigg[{\big({\varphi_1 - 2\varphi_2}\big)G_{n1} +
+    \varphi_2G_{n2} + \varphi_2G_{n3}}\bigg] &amp; G_{n4} &amp;= \mathcal{G}(t_n + h,
+  U_{n4}) \\
+  U_{n5} &amp;= \varphi_0(h/2\mathcal{L})u_n +
+  h\bigg[{\bigg({\frac{1}{2}\varphi_1(h/2\mathcal{L}) -
+      \frac{1}{4}\varphi_2(h/2\mathcal{L}) - a_{5,2}}\bigg)G_{n1}}\bigg] &amp; G_{n5} &amp;=
+  \mathcal{G}(t_n + h/2, U_{n5}) \\
+  &amp;\qquad\qquad\qquad\,\,\,+h\bigg[{a_{5,2}G_{n2}
+  + a_{5,2}G_{n,3} + \bigg({\frac{1}{4}\varphi_2(h/2\mathcal{L}) -
+    a_{5,2}}\bigg)G_{n4}}\bigg] &amp; &amp; \\
+  u_{n+1} &amp;= \varphi_0 u_n + h\bigg[{\left({\varphi_1 - 3\varphi_2 +
+      4\varphi_3}\right)G_{n1} + \left({-\varphi_2 + 4\varphi_3}\right)G_{n4}
+    + \left({4\varphi_2 - 8\varphi_3}\right)G_{n5}}\bigg]
+\end{align*}<p>Krogstad <a class="citation" href="#Krogstad2005">(Krogstad, 2005)</a> proposed an alternative (with only four
+internal stages), which converges weakly to order four, but in the
+worst case reduces to third order</p>
+\begin{align}
+  \begin{array}{c|cccc}
+    0 &amp; &amp; &amp; &amp; \\
+    \frac{1}{2} &amp; \frac{1}{2}\varphi_{1,2} &amp; &amp; &amp; \\
+    \frac{1}{2} &amp; \frac{1}{2}\varphi_{1,3} - \varphi_{2,3} &amp;
+    \varphi_{2,3} &amp; &amp; \\
+    1 &amp; \varphi_{1,4} - 2\varphi_{2,4} &amp; 0 &amp; 2 \varphi_{2,4} &amp; \\
+    \hline
+    &amp; \varphi_1 - 3\varphi_2 + 4\varphi_3 &amp; 2\varphi_2 - 4\varphi_3 &amp;
+    2\varphi_2 - 4\varphi_3 &amp; -\varphi_2 + 4\varphi_3
+  \end{array}
+  \label{e:etdrk4b}
+\end{align}<p>This leads to the following update scheme</p>
+\begin{align*}
+  U_{n1} &amp;= u_n &amp; G_{n1} &amp;= \mathcal{G}(t_n, U_{n1}) \\
+  U_{n2} &amp;= \varphi_0(h/2\mathcal{L}) u_n +
+  h\bigg[{\frac{1}{2}\varphi_1(h/2\mathcal{L}) G_{n1}}\bigg] &amp; G_{n2} &amp;=
+  \mathcal{G}(t_n + h/2, U_{n2}) \\
+  U_{n3} &amp;= \varphi_0(h/2\mathcal{L}) u_n +
+  h\bigg[{\bigg({\frac{1}{2}\varphi_1(h/2\mathcal{L}) -
+      \varphi_2(h/2\mathcal{L})}\bigg)G_{n1} + \varphi_2(h/2\mathcal{L})G_{n2}}\bigg] &amp;
+  G_{n3} &amp;= \mathcal{G}(t_n + h/2, U_{n3}) \\
+  U_{n4} &amp;= \varphi_0 u_n +
+  h\bigg[{\big({\varphi_1 - 2\varphi_2}\big)G_{n1} +
+    2\varphi_2G_{3}}\bigg] &amp; G_{n4} &amp;= \mathcal{G}(t_n + h, U_{n4}) \\
+  u_{n+1} &amp;= \varphi_0 u_n + h\bigg[{\left({\varphi_1 - 3\varphi_2 +
+      4\varphi_3}\right)G_{n1} + \left({2\varphi_2 - 4\varphi_3}\right)\left({G_{n2} +
+      G_{n3}}\right) + \left({-\varphi_2 + 4\varphi_3}\right)G_{n4}}\bigg]
+\end{align*}<p>They call this method ETDRK4-B, in contrast to the ETDRK4 method
+proposed by Cox and Mathews.</p>
+<p>Cox and Mathews originally proposed the following fourth-order method</p>
+\begin{align}
+  \begin{array}{c|cccc}
+    0 &amp; &amp; &amp; &amp; \\
+    \frac{1}{2} &amp; \frac{1}{2}\varphi_{1,2} &amp; &amp; &amp; \\
+    \frac{1}{2} &amp; 0 &amp; \frac{1}{2}\varphi_{1,3} &amp; &amp; \\
+    1 &amp; \frac{1}{2}\varphi_{1,3}\left({\varphi_{0,3} - 1}\right) &amp; 0 &amp;
+    \varphi_{1,3} &amp; \\
+    \hline
+    &amp; \varphi_1 - 3\varphi_2 + 4\varphi_3 &amp; 2\varphi_2 - 4\varphi_3 &amp;
+    2\varphi_2 - 4\varphi_3 &amp; - \varphi_2 + 4\varphi_3
+  \end{array}
+  \label{e:etdrk4Cox}
+\end{align}<p>for which</p>
+\begin{align*}
+  U_{n1} &amp;= u_n &amp; G_{n1} &amp;= \mathcal{G}(t_n, U_{n1}) \\
+  U_{n2} &amp;= \varphi_{0}\left({h/2\mathcal{L}}\right) u_n + h\bigg[{
+  \frac{1}{2}\varphi_1\left({h/2\mathcal{L}}\right) G_{n1}}\bigg] &amp; G_{n2} &amp;= \mathcal{G}(t_n + h/2, U_{n2})
+  \\
+  U_{n3} &amp;= \varphi_{0}\left({h/2\mathcal{L}}\right) u_n + h\bigg[{
+  \frac{1}{2}\varphi_1\left({h/2\mathcal{L}}\right) G_{n2}}\bigg] &amp; G_{n3} &amp;= \mathcal{G}\left({t_n
+    + h/2, U_{n3}}\right) \\
+  U_{n4} &amp;= \varphi_0 u_n + h\bigg[{
+  \frac{1}{2}\varphi_1\left({h/2\mathcal{L}}\right)\varphi_0\left({h/2\mathcal{L}}\right) G_{n1} -
+  \frac{1}{2}\varphi_1\left({h/2\mathcal{L}}\right) G_{n1} + \varphi_{1}(h/2\mathcal{L})
+  G_{n3}}\bigg] &amp; G_{n4} &amp;= \mathcal{G}\left({t_n + h, U_{n4}}\right) \\
+  &amp;= \varphi_0\left({h/2\mathcal{L}}\right) U_{n2} +
+  h\bigg[{\varphi_1\left({h/2\mathcal{L}}\right)\bigg({-\frac{1}{2}G_{n1} + G_{n3}}\bigg)}\bigg] &amp; &amp; \\
+  u_{n+1} &amp;= \varphi_0 u_n + h\bigg[{\left({\varphi_1 - 3\varphi_2 +
+      4\varphi_3}\right) G_{n1} + \left({2\varphi_2 - 4\varphi_3}\right) \left({G_{n2} +
+      G_{n3}}\right) + \left({-\varphi_2 + 4\varphi_3}\right)G_{n4}}\bigg]
+\end{align*}<p>Unfortunately, in the worst-case scenario this method reduces to order
+two. Therefore, it should never be used, it is just as expensive as
+Krogstad's method (which is guaranteed to be of third order).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p></p>
 <ol class="bibliography">
 <li><span id="Schmelzer2007">Schmelzer, T., &amp; Trefethen, L. N. (2007). Evaluating Matrix Functions for Exponential Integrators Via Caratheodory-Fejer Approximation and Contour Integrals. <i>Electronic Transactions on Numerical Analysis</i>, <i>29</i>, 1–18.</span></li>
 <li><span id="Hochbruck2010">Hochbruck, M., &amp; Ostermann, A. (2010). Exponential integrators. In <i>Acta Numerica</i> (Vol. 19, Number May 2010, pp. 209–286). https://doi.org/10.1017/S0962492910000048</span></li>
 <li><span id="Hochbruck2005a">Hochbruck, M., &amp; Ostermann, A. (2005). Explicit Exponential Runge–Kutta Methods for Semilinear Parabolic Problems. <i>SIAM Journal on Numerical Analysis</i>, <i>43</i>(3), 1069–1090. https://doi.org/10.1137/040611434</span></li>
 <li><span id="Cox2002">Cox, S. M., &amp; Matthews, P. C. (2002). Exponential time differencing for stiff systems. <i>Journal of Computational Physics</i>, <i>176</i>(2), 430–455. https://doi.org/10.1006/jcph.2002.6995</span></li>
+<li><span id="Hochbruck2005">Hochbruck, M., &amp; Ostermann, A. (2005). Exponential Runge-Kutta methods for parabolic problems. <i>Applied Numerical Mathematics</i>, <i>53</i>(2-4), 323–339. https://doi.org/10.1016/j.apnum.2004.08.005</span></li>
+<li><span id="Rothauge2016">Rothauge, K., Haber, E., &amp; Ascher, U. (2016). <i>The Discrete Adjoint Method for Exponential Integration</i>. 1–28. http://arxiv.org/abs/1610.02596</span></li>
+<li><span id="Krogstad2005">Krogstad, S. (2005). Generalized integrating factor methods for stiff PDEs. <i>Journal of Computational Physics</i>, <i>203</i>(1), 72–88. https://doi.org/10.1016/j.jcp.2004.08.006</span></li>
 </ol>
 
 </div>
