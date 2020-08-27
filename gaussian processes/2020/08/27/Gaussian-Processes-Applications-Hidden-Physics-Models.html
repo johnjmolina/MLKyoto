@@ -140,6 +140,9 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h2"><a href="#Burgers">Burgers </a></li>
 <li class="toc-entry toc-h2"><a href="#Korteweg-de-Vries">Korteweg-de Vries </a></li>
 <li class="toc-entry toc-h2"><a href="#Kuramoto-Sivishinsky">Kuramoto-Sivishinsky </a></li>
+<li class="toc-entry toc-h2"><a href="#Non-linear-Scrhödinger">Non-linear Scrhödinger </a></li>
+<li class="toc-entry toc-h2"><a href="#Quantum-Harmonic-Oscillator">Quantum Harmonic Oscillator </a></li>
+<li class="toc-entry toc-h2"><a href="#Reaction-Diffusion">Reaction-Diffusion </a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h1"><a href="#Appendix">Appendix </a>
@@ -1413,43 +1416,58 @@ P(\lambda\rvert u^n, u^{n-1}, I)&amp;= \int\text{d}\Theta P(\lambda,\Theta\rvert
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ul>
-<li>Non-linear Scrhödinger
+<h2 id="Non-linear-Scrhödinger">
+<a class="anchor" href="#Non-linear-Scrh%C3%B6dinger" aria-hidden="true"><span class="octicon octicon-link"></span></a>Non-linear Scrhödinger<a class="anchor-link" href="#Non-linear-Scrh%C3%B6dinger"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 \begin{align}
 0&amp;= \partial_t u - i \lambda_1 \partial_{xx} u - i \lambda_2 \lvert u\rvert^2 u\\
 \mathcal{L}^{\tilde{u}} &amp;= 1 + \frac{h}{i}\big[\lambda_1\partial_{xx} + \lambda_2 \lvert \tilde{u}\rvert^2\big]
-\end{align}</li>
-</ul>
-
+\end{align}
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ul>
-<li>Quantum Harmonic Oscillator
+<h2 id="Quantum-Harmonic-Oscillator">
+<a class="anchor" href="#Quantum-Harmonic-Oscillator" aria-hidden="true"><span class="octicon octicon-link"></span></a>Quantum Harmonic Oscillator<a class="anchor-link" href="#Quantum-Harmonic-Oscillator"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 \begin{align}
 0 &amp;= \partial_t u - i\lambda_1 \partial_{xx}u + i \frac{\lambda_2}{2} x^2 u \\
 \mathcal{L} &amp;= 1 + \frac{h}{i}\left[\lambda_1 \partial_{xx} - \frac{\lambda_2}{2} x^2\right]
-\end{align}</li>
-</ul>
-
+\end{align}
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<ul>
-<li>Reaction-Diffusion
+<h2 id="Reaction-Diffusion">
+<a class="anchor" href="#Reaction-Diffusion" aria-hidden="true"><span class="octicon octicon-link"></span></a>Reaction-Diffusion<a class="anchor-link" href="#Reaction-Diffusion"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 \begin{align}
 0 &amp;= \partial_t\begin{pmatrix}u \\ v\end{pmatrix} -  \lambda_1 \begin{pmatrix}\nabla^2 &amp; 0 \\ 0 &amp;\nabla^2\end{pmatrix}\begin{pmatrix}u\\v\end{pmatrix} -
 \begin{pmatrix}\lambda_2 (1 - A^2) &amp; \lambda_3 A^2 \\ - \lambda_3 A^2 &amp; \lambda_2(1 - A^2)\end{pmatrix} \begin{pmatrix}u\\v\end{pmatrix},\qquad\qquad (A^2 = u^2 + v^2) \\
 \mathcal{L}^{\tilde{u},\tilde{v}} &amp;= \mathcal{I} + h\left[-\lambda_1 \begin{pmatrix}\nabla^2 &amp; 0 \\ 0 &amp;\nabla^2\end{pmatrix} - \begin{pmatrix}\lambda_2(1-\tilde{A}^2) &amp; \lambda_3 \tilde{A}^2\\ -\lambda_3\tilde{A}^2 &amp; \lambda_2(1-\tilde{A}^2)\end{pmatrix}\right], \qquad\qquad\qquad\qquad (\tilde{A}^2 = \tilde{u}^2 + \tilde{v}^2)
-\end{align}</li>
-</ul>
-
+\end{align}
 </div>
 </div>
 </div>
