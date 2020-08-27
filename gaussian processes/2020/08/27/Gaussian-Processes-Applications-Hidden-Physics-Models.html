@@ -432,7 +432,7 @@ Here, the $u$ appearing in $\mathcal{Q}^u$ should be thought of as an additional
 <p>Following Raissi and Karniadakis, let's discretize the time-derivative using a back-ward Euler step, such that
 \begin{align}
 u^{n} + \Delta t\, \mathcal{G}(u^n) = u^{n-1} \label{e:backwards_euler}\\
-\mathcal{N}(u^n) = u^{n-1}
+\mathcal{N}(u^n) = u^{n-1}\notag
 \end{align}
 with $\mathcal{N} = \mathcal{I} + \Delta t\, \mathcal{G}$ a (non-linear) propagator taking the solution at $n$ to that at $n-1$,</p>
 \begin{align}
@@ -474,9 +474,9 @@ since this implies a GP prior for the joint distribution
 \begin{align}
 K^{n,n}(x_n, x_n^\prime) &amp;= \left\langle u^n(x_n)\, u^n(x_n^\prime)\right\rangle \equiv K(x_n, x_n^\prime)\label{e:knn}\\
 K^{n,n-1}(x_n, x_{n-1}^\prime)&amp;= \left\langle u^{n}(x_n)\, u^{n-1}(x_{n-1}^\prime)\right\rangle \label{e:knm}\\
-&amp;= \left\langle u^{n}(x_n)\, \left(\mathcal{L}^{(u^{n-1})} u^n\right) (x_{n-1}^\prime)\right\rangle \\
-&amp;= \mathcal{L}_{2}^{(u^{n-1})}\left\langle u^n(x_n)\, u^n(x_{n-1}^\prime)\right\rangle \\
-&amp;= \mathcal{L}_{2}^{(u^{n-1})} K(x_{n}, x_{n-1}^\prime)  = \left(\mathcal{L}_{2}^{(u^{n-1})} K\right)(x_{n}, x_{n-1}^\prime)\\
+&amp;= \left\langle u^{n}(x_n)\, \left(\mathcal{L}^{(u^{n-1})} u^n\right) (x_{n-1}^\prime)\right\rangle \notag\\
+&amp;= \mathcal{L}_{2}^{(u^{n-1})}\left\langle u^n(x_n)\, u^n(x_{n-1}^\prime)\right\rangle \notag\\
+&amp;= \mathcal{L}_{2}^{(u^{n-1})} K(x_{n}, x_{n-1}^\prime)  = \left(\mathcal{L}_{2}^{(u^{n-1})} K\right)(x_{n}, x_{n-1}^\prime)\notag\\
 K^{n-1,n}(x_{n-1}, x_n^\prime) &amp;= \mathcal{L}_{1}^{(u^{n-1})} K(x_{n-1}, x_{n}^\prime) = \left(\mathcal{L}_{1}^{(u^{n-1})} K\right)(x_{n-1}, x_{n}^\prime) \label{e:kmn}\\
 K^{n-1,n-1}(x_{n-1}, x_{n-1}^\prime) &amp;=\mathcal{L}_{1}^{(u^{n-1})}\mathcal{L}_{2}^{(u^{n-1})} K(x_{n-1}, x_{n-1}^\prime) = \left(\mathcal{L}_{1}^{(u^{n-1})}\mathcal{L}_{2}^{(u^{n-1})} K\right)(x_{n-1}, x_{n-1}^\prime)\label{e:kmm}
 \end{align}
@@ -503,7 +503,7 @@ K(X_n, X_n) &amp; \mathcal{L}^{u^{n-1}}_{2} K (X_n, X_{n-1}) \\
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Note that all we need to do is to specify the appropriate linearized operator $\mathcal{L}$ for the problem at hand.
-In what follows, let $\Delta t = h$. Furthermore, recall that $K(x_1,x_2)$, a function of two variables, is parametrized by hyper-parameters $\Theta = (\theta_1, \cdots, \theta_p)$. When we operate with $\mathcal{L}_{i}^{\tilde{u}}$ on $K$, we get another function of two variables, with additional parameters $i$ and $\tilde{u}$. We will use jax for all the computations and avoid messy calculations by hand, but this requires that all functions ($K$, $\mathcal{L} K$, $\mathcal{L}\mathcal{L}K$) have the same signature (number and types of arguments). Therefore, we extend all functions as follows</p>
+In what follows, let $\Delta t = h$. Furthermore, recall that $K(x_1,x_2)$, a function of two variables, is parametrized by hyper-parameters $\Theta = (\theta_1, \cdots, \theta_p)$. When we operate with $\mathcal{L}_{i}^{\tilde{u}}$ on $K$, we get another function of two variables, with additional parameters $i$ and $\tilde{u}$. We will use jax for all the computations and avoid messy calculations by hand (symbolic expressions for all necessary terms can be found <a href="https://github.com/maziarraissi/HPM">here</a>), but this requires that all functions ($K$, $\mathcal{L} K$, $\mathcal{L}\mathcal{L}K$) have the same signature (number and types of arguments). Therefore, we extend all functions as follows</p>
 \begin{align*}
 K(x_1, x_2, \Theta, u_1, u_2, \lambda) &amp;\equiv K(x_1, x_2; \Theta) \\
 \left(\mathcal{L}_i K\right)(x_1, x_2, \Theta, u_1, u_2, \lambda) &amp;\equiv \mathcal{L}_i^{u_i,\lambda} K(x_1, x_2; \Theta)\\
@@ -1402,6 +1402,14 @@ P(\lambda\rvert u^n, u^{n-1}, I)&amp;= \int\text{d}\Theta P(\lambda,\Theta\rvert
 </div>
     
 
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>I gave up waiting for the derivative function to compile on my laptop...</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
